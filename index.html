@@ -1,0 +1,1174 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Gestión de la Ira</title>
+  <style>
+    :root {
+      --primary: #c0392b;
+      --primary-dark: #922b21;
+      --primary-light: #fadbd8;
+      --calm: #2980b9;
+      --calm-light: #d6eaf8;
+      --calm-dark: #1a5276;
+      --success: #27ae60;
+      --warn: #e67e22;
+      --bg: #f4f5f7;
+      --card: #ffffff;
+      --text: #2c3e50;
+      --text-light: #7f8c8d;
+      --border: #e0e0e0;
+      --shadow: 0 2px 10px rgba(0,0,0,0.08);
+      --radius: 14px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      font-size: 16px;
+    }
+
+    /* ─── HEADER ─── */
+    header {
+      background: linear-gradient(135deg, #c0392b, #922b21);
+      color: white;
+      padding: 14px 20px 12px;
+      position: sticky; top: 0; z-index: 200;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.25);
+      display: flex; align-items: center; gap: 12px;
+    }
+    .header-icon { font-size: 1.6rem; }
+    header h1 { font-size: 1.1rem; font-weight: 700; line-height: 1.2; }
+    header p { font-size: 0.75rem; opacity: 0.8; margin-top: 2px; }
+    .header-progress { margin-left: auto; text-align: right; }
+    .header-progress span { font-size: 0.75rem; opacity: 0.85; }
+    .progress-mini { width: 80px; height: 5px; background: rgba(255,255,255,0.3); border-radius: 3px; margin-top: 3px; }
+    .progress-mini-fill { height: 100%; background: #2ecc71; border-radius: 3px; transition: width .5s; }
+
+    /* ─── NAV TABS ─── */
+    nav {
+      background: white;
+      border-bottom: 1px solid var(--border);
+      overflow-x: auto; white-space: nowrap;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none; position: sticky; top: 64px; z-index: 100;
+    }
+    nav::-webkit-scrollbar { display: none; }
+    .nav-btn {
+      display: inline-block; padding: 11px 14px;
+      border: none; background: none;
+      color: var(--text-light); font-size: 0.8rem;
+      cursor: pointer; border-bottom: 3px solid transparent;
+      transition: all .2s; white-space: nowrap; position: relative;
+    }
+    .nav-btn:hover { color: var(--primary); }
+    .nav-btn.active { color: var(--primary); border-bottom-color: var(--primary); font-weight: 600; }
+    .nav-btn.done::after { content: ' ✓'; color: var(--success); font-weight: 700; }
+
+    /* ─── MAIN ─── */
+    main { max-width: 760px; margin: 0 auto; padding: 16px; }
+
+    /* ─── CARDS ─── */
+    .card {
+      background: var(--card); border-radius: var(--radius);
+      padding: 20px; margin-bottom: 16px;
+      box-shadow: var(--shadow);
+    }
+    .card-title {
+      font-size: 1.05rem; color: var(--primary); font-weight: 700;
+      margin-bottom: 14px; padding-bottom: 10px;
+      border-bottom: 2px solid var(--primary-light);
+      display: flex; align-items: center; gap: 8px;
+    }
+    .card-title .icon { font-size: 1.2rem; }
+    h3 { font-size: 0.95rem; color: var(--primary-dark); margin: 18px 0 8px; font-weight: 700; }
+    p { font-size: 0.9rem; line-height: 1.65; margin-bottom: 10px; }
+    ul, ol { font-size: 0.9rem; line-height: 1.65; padding-left: 20px; margin-bottom: 10px; }
+    li { margin-bottom: 5px; }
+    strong { color: var(--primary-dark); }
+
+    /* ─── QUESTION PROMPT ─── */
+    .question {
+      background: var(--calm-light); border-left: 4px solid var(--calm);
+      border-radius: 0 8px 8px 0; padding: 10px 14px;
+      margin: 14px 0 6px; font-size: 0.88rem; font-weight: 600;
+      color: var(--calm-dark); line-height: 1.5;
+    }
+    .question::before { content: '✍️  '; }
+
+    /* ─── TEXTAREA / INPUT ─── */
+    textarea, input[type="text"], input[type="number"], select {
+      width: 100%; border: 1.5px solid var(--border); border-radius: 9px;
+      padding: 11px 13px; font-size: 0.9rem; font-family: inherit;
+      color: var(--text); background: #fafafa; transition: border-color .2s, background .2s;
+    }
+    textarea { resize: vertical; min-height: 90px; }
+    textarea:focus, input:focus, select:focus {
+      outline: none; border-color: var(--calm); background: white;
+      box-shadow: 0 0 0 3px rgba(41,128,185,.12);
+    }
+    label.field-label {
+      display: block; font-size: 0.78rem; font-weight: 700;
+      color: var(--text-light); margin-bottom: 5px; text-transform: uppercase; letter-spacing: .4px;
+    }
+    .field { margin-bottom: 14px; }
+
+    /* ─── BUTTONS ─── */
+    .btn {
+      border: none; border-radius: 9px; padding: 11px 20px;
+      font-size: 0.9rem; font-weight: 600; cursor: pointer;
+      transition: all .2s; display: inline-flex; align-items: center; gap: 6px;
+    }
+    .btn-primary { background: var(--primary); color: white; }
+    .btn-primary:hover { background: var(--primary-dark); transform: translateY(-1px); }
+    .btn-calm { background: var(--calm); color: white; }
+    .btn-calm:hover { background: var(--calm-dark); transform: translateY(-1px); }
+    .btn-success { background: var(--success); color: white; }
+    .btn-success:hover { background: #219a52; }
+    .btn-outline { background: white; color: var(--primary); border: 2px solid var(--primary); }
+    .btn-outline:hover { background: var(--primary-light); }
+    .btn-sm { padding: 7px 14px; font-size: 0.82rem; }
+    .btn-block { display: flex; width: 100%; justify-content: center; margin-top: 8px; }
+    .btn-danger { background: #e74c3c; color: white; }
+    .btn-danger:hover { background: #c0392b; }
+
+    /* ─── ANGER METER ─── */
+    .meter-wrap {
+      background: linear-gradient(135deg, #fdf2f2, #fce8e8);
+      border-radius: 12px; padding: 18px; margin: 14px 0;
+      border: 1px solid #f5c6c6;
+    }
+    .meter-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+    .meter-title { font-size: 0.85rem; font-weight: 700; color: var(--primary-dark); }
+    .meter-val {
+      font-size: 2.2rem; font-weight: 800;
+      min-width: 60px; text-align: center;
+      transition: color .3s;
+    }
+    input[type="range"] {
+      -webkit-appearance: none; width: 100%; height: 8px;
+      border-radius: 4px; outline: none; cursor: pointer; border: none; padding: 0;
+      background: linear-gradient(to right, #27ae60, #f39c12, #e74c3c);
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none; width: 28px; height: 28px;
+      border-radius: 50%; background: white;
+      border: 3px solid var(--primary); cursor: pointer;
+      box-shadow: 0 2px 8px rgba(0,0,0,.2);
+    }
+    .meter-desc { text-align: center; font-size: 0.78rem; color: var(--text-light); margin-top: 8px; font-style: italic; }
+
+    /* ─── WEEKLY TRACKER ─── */
+    .weekly-grid {
+      display: grid; grid-template-columns: repeat(7,1fr); gap: 6px; margin: 12px 0;
+    }
+    .day-cell { text-align: center; }
+    .day-lbl { font-size: 0.72rem; font-weight: 700; color: var(--text-light); margin-bottom: 4px; }
+    .day-inp {
+      width: 100%; border: 1.5px solid var(--border); border-radius: 7px;
+      padding: 8px 2px; text-align: center; font-size: 1rem; font-weight: 700;
+      background: #fafafa; color: var(--primary-dark);
+    }
+    .day-inp:focus { outline: none; border-color: var(--primary); background: white; }
+
+    /* ─── ANGER LOG TABLE ─── */
+    .log-container { overflow-x: auto; margin-top: 12px; }
+    .log-table { width: 100%; border-collapse: collapse; font-size: 0.78rem; min-width: 500px; }
+    .log-table th { background: var(--primary-light); color: var(--primary-dark); padding: 8px 6px; text-align: left; font-size: 0.72rem; white-space: nowrap; }
+    .log-table td { padding: 7px 6px; border-bottom: 1px solid var(--border); vertical-align: top; }
+    .log-table tr:hover td { background: #fef9f9; }
+    .log-delete { background: none; border: none; color: #e74c3c; cursor: pointer; font-size: 1rem; padding: 0 4px; }
+    .log-empty { text-align: center; color: var(--text-light); font-style: italic; padding: 20px; }
+
+    /* ─── ADD LOG FORM ─── */
+    .log-form { background: #fafafa; border-radius: 10px; padding: 16px; margin-top: 12px; border: 1.5px solid var(--border); }
+    .log-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+    /* ─── BREATHING EXERCISE ─── */
+    .breathing-outer { text-align: center; padding: 10px 0; }
+    .breathing-circle {
+      width: 140px; height: 140px; border-radius: 50%;
+      background: radial-gradient(circle at 40% 40%, #5dade2, #1a5276);
+      margin: 0 auto 14px; display: flex; align-items: center; justify-content: center;
+      color: white; font-size: 0.9rem; font-weight: 700; text-align: center;
+      box-shadow: 0 4px 24px rgba(41,128,185,.45);
+      transition: transform 4s ease-in-out;
+      cursor: pointer; user-select: none;
+    }
+    .breathing-phase { font-size: 1rem; font-weight: 700; color: var(--calm); margin-bottom: 4px; }
+    .breathing-count { font-size: 2.5rem; font-weight: 800; color: var(--calm-dark); margin-bottom: 10px; }
+    .breathing-msg { font-size: 0.83rem; color: var(--text-light); margin-bottom: 12px; }
+
+    /* ─── ABCD MODEL ─── */
+    .abcd-item { display: grid; grid-template-columns: 44px 1fr; gap: 12px; margin-bottom: 14px; align-items: start; }
+    .abcd-badge {
+      width: 44px; height: 44px; border-radius: 50%; background: var(--primary);
+      color: white; display: flex; flex-direction: column; align-items: center; justify-content: center;
+      font-size: 1.2rem; font-weight: 800; flex-shrink: 0;
+      box-shadow: 0 2px 8px rgba(192,57,43,.3);
+    }
+    .abcd-badge span { font-size: 0.55rem; font-weight: 500; opacity: .8; margin-top: -2px; }
+
+    /* ─── CONFLICT STEPS ─── */
+    .conflict-step { display: grid; grid-template-columns: 38px 1fr; gap: 12px; margin-bottom: 16px; align-items: start; }
+    .step-badge {
+      width: 38px; height: 38px; border-radius: 50%; background: var(--calm);
+      color: white; display: flex; align-items: center; justify-content: center;
+      font-size: 1rem; font-weight: 800; flex-shrink: 0;
+    }
+    .step-label { font-size: 0.83rem; font-weight: 700; color: var(--calm-dark); margin-bottom: 5px; }
+    .step-hint { font-size: 0.78rem; color: var(--text-light); margin-bottom: 6px; }
+
+    /* ─── ANGER CONTROL PLAN ─── */
+    .plan-strategy {
+      display: flex; align-items: center; gap: 8px;
+      background: #f8f9fa; border-radius: 8px; padding: 10px 12px;
+      margin-bottom: 8px; border: 1.5px solid var(--border);
+    }
+    .plan-strategy .num {
+      width: 28px; height: 28px; border-radius: 50%; background: var(--primary);
+      color: white; display: flex; align-items: center; justify-content: center;
+      font-size: 0.85rem; font-weight: 700; flex-shrink: 0;
+    }
+    .plan-strategy input { border: none; background: none; padding: 0; }
+    .plan-strategy input:focus { box-shadow: none; outline: none; }
+
+    /* ─── DIVIDER ─── */
+    .divider { border: none; border-top: 1.5px dashed var(--border); margin: 20px 0; }
+
+    /* ─── HIGHLIGHT BOX ─── */
+    .info-box {
+      border-radius: 10px; padding: 14px 16px; margin: 12px 0;
+      font-size: 0.88rem; line-height: 1.6;
+    }
+    .info-box.warm { background: #fef9e7; border-left: 4px solid #f39c12; color: #7d6608; }
+    .info-box.calm { background: var(--calm-light); border-left: 4px solid var(--calm); color: var(--calm-dark); }
+    .info-box.red { background: var(--primary-light); border-left: 4px solid var(--primary); color: var(--primary-dark); }
+    .info-box.green { background: #eafaf1; border-left: 4px solid var(--success); color: #1e8449; }
+
+    /* ─── CYCLE VISUAL ─── */
+    .cycle-diagram {
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+      margin: 16px 0; flex-wrap: wrap;
+    }
+    .cycle-phase {
+      background: white; border: 2px solid; border-radius: 10px;
+      padding: 10px 14px; text-align: center; font-size: 0.8rem; font-weight: 700;
+      min-width: 90px;
+    }
+    .cycle-phase.accum { border-color: #f39c12; color: #e67e22; }
+    .cycle-phase.explo { border-color: var(--primary); color: var(--primary); }
+    .cycle-phase.conse { border-color: var(--primary-dark); color: var(--primary-dark); }
+    .cycle-arrow { font-size: 1.2rem; color: var(--text-light); }
+    .cycle-phase ul { text-align: left; font-size: 0.72rem; font-weight: 400; margin: 4px 0 0 12px; }
+    .cycle-phase ul li { margin-bottom: 1px; }
+
+    /* ─── SESSION COMPLETE BANNER ─── */
+    .complete-banner {
+      background: linear-gradient(135deg, #1e8449, #27ae60);
+      color: white; border-radius: 14px; padding: 20px;
+      text-align: center; margin-top: 20px;
+    }
+    .complete-banner h3 { font-size: 1.1rem; margin-bottom: 6px; color: white; }
+    .complete-banner p { color: rgba(255,255,255,.85); font-size: 0.85rem; margin: 0; }
+
+    /* ─── GRADUATION ─── */
+    .certificate {
+      border: 4px double var(--primary); border-radius: 16px;
+      padding: 30px; text-align: center; background: linear-gradient(135deg, #fff9f9, #fff);
+      margin: 16px 0;
+    }
+    .certificate .cert-icon { font-size: 3rem; margin-bottom: 10px; }
+    .certificate h2 { color: var(--primary); font-size: 1.4rem; margin-bottom: 6px; }
+    .certificate .cert-name { font-size: 1.1rem; color: var(--text); margin: 10px 0; }
+    .certificate .cert-date { font-size: 0.85rem; color: var(--text-light); margin-top: 14px; }
+
+    /* ─── TOAST ─── */
+    #toast {
+      position: fixed; bottom: 24px; left: 50%;
+      transform: translateX(-50%) translateY(80px);
+      background: var(--success); color: white;
+      padding: 12px 24px; border-radius: 25px;
+      font-size: 0.88rem; font-weight: 600; z-index: 9999;
+      transition: transform .35s cubic-bezier(.175,.885,.32,1.275);
+      pointer-events: none; box-shadow: 0 4px 20px rgba(0,0,0,.2);
+    }
+    #toast.show { transform: translateX(-50%) translateY(0); }
+
+    /* ─── WELCOME SCREEN ─── */
+    .welcome {
+      text-align: center; padding: 40px 16px;
+    }
+    .welcome-icon { font-size: 4rem; margin-bottom: 14px; }
+    .welcome h2 { font-size: 1.5rem; color: var(--primary); margin-bottom: 10px; }
+    .welcome p { font-size: 0.9rem; color: var(--text-light); max-width: 400px; margin: 0 auto 20px; }
+    .session-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px,1fr)); gap: 10px; margin-top: 20px; }
+    .session-card {
+      background: white; border-radius: 12px; padding: 14px 10px;
+      text-align: center; cursor: pointer; border: 2px solid var(--border);
+      transition: all .2s; box-shadow: var(--shadow);
+    }
+    .session-card:hover { border-color: var(--primary); transform: translateY(-2px); }
+    .session-card .s-num { font-size: 1.4rem; font-weight: 800; color: var(--primary); }
+    .session-card .s-name { font-size: 0.72rem; color: var(--text-light); margin-top: 4px; line-height: 1.3; }
+    .session-card.done { border-color: var(--success); background: #eafaf1; }
+    .session-card.done .s-num { color: var(--success); }
+
+    @media (max-width: 480px) {
+      main { padding: 12px 10px; }
+      .log-form-grid { grid-template-columns: 1fr; }
+      .session-grid { grid-template-columns: repeat(3,1fr); }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="header-icon">🔥</div>
+  <div>
+    <h1>Gestión de la Ira</h1>
+    <p>Libro de actividades interactivo</p>
+  </div>
+  <div class="header-progress">
+    <span id="progress-text">0 / 12 sesiones</span>
+    <div class="progress-mini"><div class="progress-mini-fill" id="progress-bar" style="width:0%"></div></div>
+  </div>
+</header>
+
+<nav id="main-nav">
+  <button class="nav-btn active" onclick="showSection('home')" id="nav-home">🏠 Inicio</button>
+  <button class="nav-btn" onclick="showSection('s0')" id="nav-s0">Intro</button>
+  <button class="nav-btn" onclick="showSection('s1')" id="nav-s1">S1</button>
+  <button class="nav-btn" onclick="showSection('s2')" id="nav-s2">S2</button>
+  <button class="nav-btn" onclick="showSection('s3')" id="nav-s3">S3</button>
+  <button class="nav-btn" onclick="showSection('s4')" id="nav-s4">S4</button>
+  <button class="nav-btn" onclick="showSection('s5')" id="nav-s5">S5</button>
+  <button class="nav-btn" onclick="showSection('s6')" id="nav-s6">S6</button>
+  <button class="nav-btn" onclick="showSection('s78')" id="nav-s78">S7-8</button>
+  <button class="nav-btn" onclick="showSection('s910')" id="nav-s910">S9-10</button>
+  <button class="nav-btn" onclick="showSection('s11')" id="nav-s11">S11</button>
+  <button class="nav-btn" onclick="showSection('s12')" id="nav-s12">S12</button>
+  <button class="nav-btn" onclick="showSection('log')" id="nav-log">📋 Registro</button>
+  <button class="nav-btn" onclick="showSection('plan')" id="nav-plan">🛠 Plan</button>
+</nav>
+
+<main id="app"></main>
+
+<div id="toast"></div>
+
+<script>
+// ═══════════════════════════════════════════════
+//  STATE & PERSISTENCE
+// ═══════════════════════════════════════════════
+const KEY = 'ira_app_v2';
+let state = {
+  completed: [],
+  answers: {},
+  weekly: {},
+  angerLog: [],
+  plan: ['','','','','',''],
+  abcd: {},
+  conflict: {},
+  certName: ''
+};
+function load() {
+  try { const d = localStorage.getItem(KEY); if(d) state = {...state, ...JSON.parse(d)}; } catch(e){}
+}
+function save() {
+  localStorage.setItem(KEY, JSON.stringify(state));
+  updateProgress();
+}
+function ans(id, val) { state.answers[id] = val; save(); }
+function getAns(id) { return state.answers[id] || ''; }
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 2500);
+}
+function updateProgress() {
+  const n = state.completed.length;
+  document.getElementById('progress-text').textContent = `${n} / 12 sesiones`;
+  document.getElementById('progress-bar').style.width = `${Math.round(n/12*100)}%`;
+  ['s1','s2','s3','s4','s5','s6','s78','s910','s11','s12'].forEach(id => {
+    const btn = document.getElementById('nav-'+id);
+    if(btn) { if(state.completed.includes(id)) btn.classList.add('done'); else btn.classList.remove('done'); }
+  });
+}
+function markDone(id) {
+  if(!state.completed.includes(id)) state.completed.push(id);
+  save(); toast('✅ Sesión marcada como completada');
+  renderSection(currentSection);
+}
+
+// ═══════════════════════════════════════════════
+//  COMPONENTS
+// ═══════════════════════════════════════════════
+function qField(id, prompt, rows=3) {
+  return `<div class="question">${prompt}</div>
+    <div class="field"><textarea rows="${rows}" id="${id}" placeholder="Escribe aquí..."
+      oninput="ans('${id}',this.value)">${getAns(id)}</textarea></div>`;
+}
+function saveBtn(msg='💾 Guardar respuestas') {
+  return `<button class="btn btn-calm btn-sm" onclick="toast('✅ Guardado automáticamente')">${msg}</button>`;
+}
+function weeklyTracker(sid) {
+  const days = ['L','Ma','Mi','J','V','S','D'];
+  const vals = state.weekly[sid] || {};
+  return `<div class="info-box warm">📅 Para cada día de esta semana, registra el número más alto que alcanzas en el medidor de ira:</div>
+  <div class="weekly-grid">${days.map(d=>`<div class="day-cell">
+    <div class="day-lbl">${d}</div>
+    <input type="number" class="day-inp" min="1" max="10" value="${vals[d]||''}"
+      oninput="saveWeekly('${sid}','${d}',this.value)" placeholder="—">
+  </div>`).join('')}</div>`;
+}
+function saveWeekly(sid,day,val) {
+  if(!state.weekly[sid]) state.weekly[sid]={};
+  state.weekly[sid][day]=val; save();
+}
+function weeklyReview(sid) {
+  const fields = ['físicos','conductuales','emocionales','cognitivos'];
+  return `<hr class="divider">
+  <h3>📊 Supervisión de la ira – semana anterior</h3>
+  ${qField(sid+'_rev_evento','¿Cuál fue el número más alto en el medidor de ira? ¿Qué evento lo condujo a la ira?',2)}
+  <div class="log-form-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+  ${fields.map(f=>`<div class="field"><label class="field-label">Indicios ${f}</label>
+    <textarea rows="2" id="${sid}_ind_${f}" placeholder="..."
+      oninput="ans('${sid}_ind_${f}',this.value)">${getAns(sid+'_ind_'+f)}</textarea></div>`).join('')}
+  </div>
+  ${qField(sid+'_estrategias','¿Qué estrategias usaste para evitar llegar a 10?',2)}
+  ${weeklyTracker(sid)}`;
+}
+function completeBtn(id, label='Marcar sesión como completada') {
+  const done = state.completed.includes(id);
+  if(done) return `<div class="complete-banner"><h3>🎉 ¡Sesión completada!</h3><p>Has terminado esta sesión. Puedes volver a editarla en cualquier momento.</p></div>`;
+  return `<button class="btn btn-success btn-block complete-btn" onclick="markDone('${id}')">✅ ${label}</button>`;
+}
+
+// ═══════════════════════════════════════════════
+//  ANGER METER COMPONENT
+// ═══════════════════════════════════════════════
+function angerMeter(id, label='Tu nivel de ira ahora mismo') {
+  const val = parseInt(getAns(id))||1;
+  const descs = ['','Calma total 😌','Muy tranquilo 😊','Tranquilo 🙂','Leve irritación 😐','Molesto 😒','Enojado 😠','Muy enojado 😤','Ira intensa 😡','Casi sin control 🤬','¡Pérdida de control! 💥'];
+  const color = val<=3?'#27ae60':val<=6?'#e67e22':'#c0392b';
+  return `<div class="meter-wrap">
+    <div class="meter-top"><span class="meter-title">🌡 ${label}</span><span class="meter-val" id="${id}_val" style="color:${color}">${val}</span></div>
+    <input type="range" min="1" max="10" value="${val}" id="${id}_range"
+      oninput="updateMeter('${id}',this.value)">
+    <div class="meter-desc" id="${id}_desc">${descs[val]}</div>
+  </div>`;
+}
+function updateMeter(id, val) {
+  const descs = ['','Calma total 😌','Muy tranquilo 😊','Tranquilo 🙂','Leve irritación 😐','Molesto 😒','Enojado 😠','Muy enojado 😤','Ira intensa 😡','Casi sin control 🤬','¡Pérdida de control! 💥'];
+  const color = val<=3?'#27ae60':val<=6?'#e67e22':'#c0392b';
+  document.getElementById(id+'_val').textContent = val;
+  document.getElementById(id+'_val').style.color = color;
+  document.getElementById(id+'_desc').textContent = descs[val];
+  ans(id, val);
+}
+
+// ═══════════════════════════════════════════════
+//  SECTIONS CONTENT
+// ═══════════════════════════════════════════════
+const sections = {
+
+home: ()=>`
+  <div class="card">
+    <div class="welcome">
+      <div class="welcome-icon">🧠</div>
+      <h2>Gestión de la Ira</h2>
+      <p>Libro de actividades interactivo. Completa las 12 sesiones a tu ritmo. Todo se guarda automáticamente en tu dispositivo.</p>
+      <div class="session-grid">
+        ${[
+          {id:'s0',n:'📖',t:'Introducción'},
+          {id:'s1',n:'1',t:'Descripción general'},
+          {id:'s2',n:'2',t:'Eventos e indicios'},
+          {id:'s3',n:'3',t:'Plan de control'},
+          {id:'s4',n:'4',t:'Ciclo de agresión'},
+          {id:'s5',n:'5',t:'Reestructuración cognitiva'},
+          {id:'s6',n:'6',t:'Práctica 1'},
+          {id:'s78',n:'7-8',t:'Afirmación'},
+          {id:'s910',n:'9-10',t:'Ira y familia'},
+          {id:'s11',n:'11',t:'Práctica 2'},
+          {id:'s12',n:'12',t:'Cierre y graduación'},
+        ].map(s=>`<div class="session-card${state.completed.includes(s.id)?' done':''}" onclick="showSection('${s.id}')">
+          <div class="s-num">${s.n}</div>
+          <div class="s-name">${s.t}${state.completed.includes(s.id)?'<br>✓':''}
+          </div></div>`).join('')}
+      </div>
+    </div>
+  </div>`,
+
+// ── INTRODUCCIÓN ──
+s0: ()=>`
+  <div class="card">
+    <div class="card-title"><span class="icon">📖</span>Introducción</div>
+    <p>Este libro de actividades está destinado a personas que participan en un tratamiento para la gestión de la ira. El programa tiene una duración de <strong>12 semanas</strong> y proporciona:</p>
+    <ul>
+      <li>Resumen de conceptos centrales de cada sesión</li>
+      <li>Hojas de actividades para completar entre sesiones</li>
+      <li>Espacio para tomar notas personales</li>
+    </ul>
+    <div class="info-box calm">💡 Los conceptos y habilidades se aprenden mejor mediante la <strong>práctica y revisión</strong> continua. Completa los desafíos entre sesiones para desarrollar habilidades de gestión de la ira.</div>
+    <h3>¿Qué aprenderás?</h3>
+    <ul>
+      <li>Entender qué es la ira y qué no es</li>
+      <li>Identificar tus desencadenantes personales</li>
+      <li>Desarrollar un plan de control de la ira</li>
+      <li>Técnicas de relajación y respiración</li>
+      <li>Reestructuración cognitiva (modelo A-B-C-D)</li>
+      <li>Habilidades de afirmación y resolución de conflictos</li>
+      <li>Entender el rol de la familia en tu ira</li>
+    </ul>
+  </div>`,
+
+// ── SESIÓN 1 ──
+s1: ()=>`
+  <div class="card">
+    <div class="card-title"><span class="icon">1️⃣</span>Sesión 1 – Descripción general del tratamiento</div>
+    <div class="info-box warm">En esta primera sesión obtendrás una visión general del tratamiento, incluyendo definiciones, mitos sobre la ira y el medidor de ira.</div>
+
+    <h3>Propósito del grupo</h3>
+    <ol>
+      <li>Aprender a gestionar la ira de forma efectiva</li>
+      <li>Detener la violencia o la amenaza de violencia</li>
+      <li>Desarrollar el autocontrol sobre pensamientos y acciones</li>
+      <li>Recibir apoyo de los demás</li>
+    </ol>
+
+    <h3>Definiciones clave</h3>
+    <ul>
+      <li><strong>Ira:</strong> sentimiento que varía desde irritación leve hasta furia intensa</li>
+      <li><strong>Agresión:</strong> comportamiento con intención de causar daño</li>
+      <li><strong>Hostilidad:</strong> conjunto de actitudes que motivan conductas agresivas</li>
+    </ul>
+
+    <h3>¿Cuándo la ira se convierte en un problema?</h3>
+    <p>Cuando se siente con demasiada <strong>intensidad</strong>, con demasiada <strong>frecuencia</strong> o se expresa de manera <strong>inapropiada</strong>.</p>
+
+    <h3>Mitos sobre la ira</h3>
+    <div class="info-box red">
+      <strong>Mito 1:</strong> La forma en que expresas la ira no se puede cambiar.<br>
+      <em>Realidad:</em> Lo que hacemos CON la ira es aprendido y puede cambiarse.
+    </div>
+    <div class="info-box red">
+      <strong>Mito 2:</strong> La ira conduce automáticamente a la agresión.<br>
+      <em>Realidad:</em> Hay formas constructivas de expresar la ira.
+    </div>
+    <div class="info-box red">
+      <strong>Mito 3:</strong> Debes ser agresivo para obtener lo que deseas.<br>
+      <em>Realidad:</em> La afirmación logra resultados sin daño.
+    </div>
+    <div class="info-box red">
+      <strong>Mito 4:</strong> Siempre es bueno descargar la ira.<br>
+      <em>Realidad:</em> Descargarse agresivamente solo refuerza ese comportamiento.
+    </div>
+
+    <hr class="divider">
+    <h3>✍️ Actividades</h3>
+    ${qField('s1_confusion','¿Alguna vez confundiste la ira con la agresión? Explica cómo.',3)}
+    ${qField('s1_fisico','¿Cómo puede afectarte la ira físicamente?',2)}
+    ${qField('s1_beneficios','Menciona algunos "beneficios aparentes" de usar la ira que conozcas.',2)}
+    ${qField('s1_consecuencias','Menciona consecuencias negativas de expresar tu ira inapropiadamente.',2)}
+    ${qField('s1_mitos','¿Creías alguno de estos mitos? ¿Cuáles?',2)}
+    ${qField('s1_habito','¿La ira se ha convertido en un hábito para ti? ¿Cómo?',3)}
+    ${qField('s1_estrategias','¿Qué estrategias de control de ira conoces o has usado?',2)}
+
+    <h3>🌡 Medidor de ira</h3>
+    <p>El medidor va del <strong>1</strong> (calma total) al <strong>10</strong> (pérdida de control). Usarás esta escala durante todo el programa.</p>
+    ${angerMeter('s1_meter','¿Cómo está tu nivel de ira ahora mismo?')}
+    ${weeklyReview('s1')}
+    ${completeBtn('s1')}
+  </div>`,
+
+// ── SESIÓN 2 ──
+s2: ()=>`
+  <div class="card">
+    <div class="card-title"><span class="icon">2️⃣</span>Sesión 2 – Eventos e indicios</div>
+    <div class="info-box warm">Aprenderás a analizar episodios de ira identificando eventos desencadenantes e indicios de escalamiento.</div>
+
+    <h3>Eventos que conducen a la ira</h3>
+    <p>La ira surge de cómo <strong>interpretamos</strong> un evento. Algunos ejemplos comunes:</p>
+    <ul>
+      <li>Esperar mucho tiempo (teléfono, oficina)</li>
+      <li>Estar atrapado en el tráfico</li>
+      <li>Un amigo que dice cosas hirientes</li>
+      <li>Alguien que no devuelve dinero</li>
+      <li>Vecinos desconsiderados</li>
+    </ul>
+
+    <h3>Los 4 tipos de indicios de la ira</h3>
+    <div class="info-box calm"><strong>1. Físicos:</strong> aumento de frecuencia cardíaca, opresión en el pecho, calor, enrojecimiento</div>
+    <div class="info-box calm"><strong>2. Conductuales:</strong> apretar puños, levantar la voz, mirar fijamente</div>
+    <div class="info-box calm"><strong>3. Emocionales:</strong> miedo, dolor, celos, sentirse irrespetado</div>
+    <div class="info-box calm"><strong>4. Cognitivos:</strong> diálogo interno hostil, imágenes de venganza</div>
+
+    <hr class="divider">
+    <h3>✍️ Actividades</h3>
+    ${qField('s2_eventos_gral','¿Cuáles son los eventos generales que te causan ira?',3)}
+    ${qField('s2_senales','¿Cuáles son las "señales de advertencia" específicas asociadas con tu ira?',3)}
+    ${qField('s2_fisicos','Mis indicios FÍSICOS (cómo responde mi cuerpo):',2)}
+    ${qField('s2_conductuales','Mis indicios CONDUCTUALES (lo que hago):',2)}
+    ${qField('s2_emocionales','Mis indicios EMOCIONALES:',2)}
+    ${qField('s2_cognitivos','Mis indicios COGNITIVOS (lo que pienso):',2)}
+
+    <h3>📋 Registro de conciencia de la ira</h3>
+    <p>Usa el registro en la sección <strong>"📋 Registro"</strong> del menú para agregar episodios de ira durante la semana.</p>
+    <button class="btn btn-calm btn-sm" onclick="showSection('log')">📋 Ir al Registro de ira →</button>
+
+    ${weeklyReview('s2')}
+    ${completeBtn('s2')}
+  </div>`,
+
+// ── SESIÓN 3 ──
+s3: ()=>`
+  <div class="card">
+    <div class="card-title"><span class="icon">3️⃣</span>Sesión 3 – Planes de control de la ira</div>
+    <div class="info-box warm">Aprenderás estrategias específicas para gestionar tu ira, incluyendo suspensiones, apoyo social y relajación.</div>
+
+    <h3>¿Qué es el plan de control?</h3>
+    <p>Es tu lista personal de <strong>estrategias</strong> para manejar la ira. Incluye estrategias <strong>inmediatas</strong> (suspensiones, respiración profunda) y <strong>preventivas</strong> (ejercicio, cambio de creencias).</p>
+
+    <h3>La suspensión</h3>
+    <p>Una suspensión significa <strong>pausar antes de reaccionar</strong>. Puede ser:</p>
+    <ul>
+      <li>Respirar profundamente y pensar antes de reaccionar</li>
+      <li>Alejarse físicamente de la situación</li>
+      <li>Detener la conversación que está provocando ira</li>
+    </ul>
+    <div class="info-box green">💡 Una suspensión formal implica tener un acuerdo previo con la otra persona: cualquiera puede pedirla, y luego se regresa a resolver el problema.</div>
+
+    <h3>Apoyo social</h3>
+    <p>Tener personas que entiendan y apoyen tus esfuerzos es clave. Puede ser familia, amigos de confianza, patrocinadores, grupos de ayuda mutua.</p>
+    ${qField('s3_apoyo','¿A quién buscarías para apoyo social? ¿Cómo le pedirías ayuda?',3)}
+
+    <h3>🧘 Ejercicio: Respiración profunda</h3>
+    <div id="breathing-section"></div>
+    <button class="btn btn-calm btn-sm" onclick="initBreathing()">▶ Iniciar ejercicio de respiración</button>
+
+    <hr class="divider">
+    <h3>✍️ Actividades</h3>
+    ${qField('s3_suspension_cuando','¿En qué situaciones usarías la suspensión? Descríbelas.',3)}
+    ${qField('s3_estrategias','¿Qué estrategias específicas usarías para controlar tu ira?',3)}
+
+    <h3>🛠 Tu plan de control de ira</h3>
+    <p>Ve a la sección <strong>"🛠 Plan"</strong> del menú para construir tu plan personalizado.</p>
+    <button class="btn btn-primary btn-sm" onclick="showSection('plan')">🛠 Ir a mi Plan →</button>
+
+    ${weeklyReview('s3')}
+    ${completeBtn('s3')}
+  </div>`,
+
+// ── SESIÓN 4 ──
+s4: ()=>`
+  <div class="card">
+    <div class="card-title"><span class="icon">4️⃣</span>Sesión 4 – El ciclo de agresión</div>
+    <div class="info-box warm">Aprenderás las tres fases del ciclo de agresión y practicarás la relajación muscular progresiva.</div>
+
+    <h3>Las tres fases del ciclo</h3>
+    <div class="cycle-diagram">
+      <div class="cycle-phase accum">⚡ ACUMULACIÓN<ul><li>Aumento cardíaco</li><li>Enrojecimiento</li><li>Puños cerrados</li><li>Pensamientos hostiles</li></ul></div>
+      <div class="cycle-arrow">→</div>
+      <div class="cycle-phase explo">💥 EXPLOSIÓN<ul><li>Agresión verbal</li><li>Conducta destructiva</li><li>Violencia</li></ul></div>
+      <div class="cycle-arrow">→</div>
+      <div class="cycle-phase conse">🔻 CONSECUENCIAS<ul><li>Pérdida de empleo</li><li>Ruptura familiar</li><li>Prisión</li><li>Culpa, vergüenza</li></ul></div>
+    </div>
+
+    <div class="info-box calm">🎯 <strong>Objetivo:</strong> interrumpir el ciclo <em>antes</em> de llegar a la fase de explosión. Usa el medidor de ira para detectar el escalamiento temprano.</div>
+
+    <h3>¿En qué fase estás?</h3>
+    <ul>
+      <li>Puntuación 1-9 en el medidor = <strong>Fase de acumulación</strong> → Usa tu plan de control</li>
+      <li>Puntuación 10 = <strong>Fase de explosión</strong> → Ya hay pérdida de control</li>
+    </ul>
+
+    ${angerMeter('s4_meter','¿Cuál fue tu punto más alto esta semana?')}
+
+    <hr class="divider">
+    <h3>✍️ Actividades</h3>
+    ${qField('s4_fase7','Si alcanzas un 7 en el medidor, ¿en qué fase del ciclo estás? ¿Qué harías?',3)}
+    ${qField('s4_interrumpir','¿Cómo puedes interrumpir el ciclo antes de llegar a la explosión?',3)}
+
+    <h3>🧘 Ejercicio: Relajación muscular progresiva</h3>
+    <div id="pmr-section">
+      <div class="info-box calm">
+        <p><strong>Instrucciones:</strong> Siéntate cómodamente. Cierra los ojos si lo deseas.</p>
+        <ol>
+          <li><strong>Manos:</strong> Cierra los puños con fuerza → mantén 5 seg → suelta. Repite.</li>
+          <li><strong>Brazos:</strong> Dobla los brazos tensando bíceps → mantén 5 seg → suelta.</li>
+          <li><strong>Hombros:</strong> Sube los hombros hacia las orejas → mantén 5 seg → baja suavemente.</li>
+          <li><strong>Cuello y rostro:</strong> Haz una mueca tensa → mantén 5 seg → relaja completamente.</li>
+          <li>Permanece quieto unos momentos. Observa la diferencia entre tensión y relajación.</li>
+        </ol>
+      </div>
+      <button class="btn btn-calm btn-sm" onclick="startPMR()">▶ Guía de relajación muscular paso a paso</button>
+      <div id="pmr-active"></div>
+    </div>
+
+    ${weeklyReview('s4')}
+    ${completeBtn('s4')}
+  </div>`,
+
+// ── SESIÓN 5 ──
+s5: ()=>`
+  <div class="card">
+    <div class="card-title"><span class="icon">5️⃣</span>Sesión 5 – Reestructuración cognitiva</div>
+    <div class="info-box warm">Aprenderás el modelo A-B-C-D y la técnica de detención del pensamiento para cambiar cómo piensas sobre los eventos.</div>
+
+    <h3>El modelo A-B-C-D</h3>
+    <div class="info-box calm">
+      <strong>No son los eventos los que producen ira — son nuestras creencias e interpretaciones sobre ellos.</strong>
+    </div>
+
+    <div style="margin:16px 0">
+      <div class="abcd-item"><div class="abcd-badge">A<span>Activación</span></div>
+        <div><strong>Evento activador</strong> – La situación o evento que ocurrió (el "disparador")</div></div>
+      <div class="abcd-item"><div class="abcd-badge">B<span>Beliefs</span></div>
+        <div><strong>Sistema de creencias</strong> – Lo que te dices a ti mismo sobre el evento (diálogo interno, expectativas)</div></div>
+      <div class="abcd-item"><div class="abcd-badge">C<span>Consecuencia</span></div>
+        <div><strong>Consecuencia emocional</strong> – Cómo te sientes (resultado de tus creencias, no del evento)</div></div>
+      <div class="abcd-item"><div class="abcd-badge">D<span>Disputa</span></div>
+        <div><strong>Disputa</strong> – Examina tus creencias: ¿son irracionales o inadaptadas? Reemplázalas con pensamientos más realistas</div></div>
+    </div>
+
+    <h3>Practica el modelo A-B-C-D</h3>
+    <div class="abcd-item"><div class="abcd-badge" style="background:var(--warn)">A</div>
+      <div class="field"><label class="field-label">Describe el evento activador</label>
+      <textarea rows="2" id="s5_a" placeholder="¿Qué pasó?" oninput="ans('s5_a',this.value)">${getAns('s5_a')}</textarea></div></div>
+    <div class="abcd-item"><div class="abcd-badge" style="background:var(--warn)">B</div>
+      <div class="field"><label class="field-label">¿Qué te dijiste a ti mismo? ¿Cuáles fueron tus creencias?</label>
+      <textarea rows="2" id="s5_b" placeholder="Mis pensamientos y creencias..." oninput="ans('s5_b',this.value)">${getAns('s5_b')}</textarea></div></div>
+    <div class="abcd-item"><div class="abcd-badge" style="background:var(--primary)">C</div>
+      <div class="field"><label class="field-label">¿Cómo te sentiste como consecuencia?</label>
+      <textarea rows="2" id="s5_c" placeholder="Mis emociones..." oninput="ans('s5_c',this.value)">${getAns('s5_c')}</textarea></div></div>
+    <div class="abcd-item"><div class="abcd-badge" style="background:var(--success)">D</div>
+      <div class="field"><label class="field-label">Disputa: ¿cómo podrías interpretar el evento de forma más realista?</label>
+      <textarea rows="3" id="s5_d" placeholder="Una perspectiva más racional sería..." oninput="ans('s5_d',this.value)">${getAns('s5_d')}</textarea></div></div>
+
+    <h3>Detención del pensamiento</h3>
+    <p>Una alternativa al A-B-C-D: simplemente decirte a ti mismo que abandones los pensamientos que te hacen enojar.</p>
+    <div class="info-box calm">Ejemplos: <em>"Necesito dejar de pensar esto"</em> · <em>"No te metas en esto"</em> · <em>"Esto no vale la pena"</em></div>
+    ${qField('s5_frases','¿Qué otras frases de "detención del pensamiento" puedes usar cuando te enojas?',3)}
+    ${qField('s5_creencias','¿Cuáles son algunas de tus creencias de mala adaptación?',3)}
+
+    ${weeklyReview('s5')}
+    ${completeBtn('s5')}
+  </div>`,
+
+// ── SESIÓN 6 ──
+s6: ()=>`
+  <div class="card">
+    <div class="card-title"><span class="icon">6️⃣</span>Sesión 6 – Práctica N.º 1</div>
+    <div class="info-box warm">Revisión y práctica de todos los conceptos aprendidos hasta ahora.</div>
+
+    <h3>Repaso de conceptos (Sesiones 1-5)</h3>
+    <div style="display:flex;flex-wrap:wrap;gap:8px;margin:12px 0">
+      ${['Mitos sobre la ira','Medidor de ira','Desencadenantes','4 tipos de indicios','Registro de conciencia','Planes de control','Apoyo social','Respiración profunda','Ciclo de agresión','Relajación muscular','Modelo A-B-C-D','Detención del pensamiento'].map(t=>`<span class="tag">✓ ${t}</span>`).join('')}
+    </div>
+
+    ${qField('s6_aprendido','¿Qué conceptos o herramientas han sido más útiles hasta ahora? ¿Por qué?',3)}
+    ${qField('s6_dificil','¿Qué ha sido más difícil de aplicar? ¿Por qué?',3)}
+    ${qField('s6_plan_actual','Describe cómo está tu plan de control de ira hasta ahora.',3)}
+
+    <h3>Practica el medidor de ira</h3>
+    ${angerMeter('s6_meter','¿Cómo está tu ira esta semana en promedio?')}
+
+    ${weeklyReview('s6')}
+    ${completeBtn('s6')}
+  </div>`,
+
+// ── SESIONES 7-8 ──
+s78: ()=>`
+  <div class="card">
+    <div class="card-title"><span class="icon">7️⃣</span>Sesiones 7 y 8 – Afirmación y resolución de conflictos</div>
+    <div class="info-box warm">Aprenderás la diferencia entre agresión, pasividad y afirmación, y el modelo de resolución de conflictos de 5 pasos.</div>
+
+    <h3>Tres estilos de respuesta</h3>
+    <div class="info-box red"><strong>🥊 Agresión:</strong> "Mis sentimientos importan, los tuyos no." Intenta dominar, intimidar o dañar. Genera consecuencias negativas.</div>
+    <div class="info-box warm"><strong>🙈 Pasividad:</strong> "Tus sentimientos importan, los míos no." Permite que se violen tus derechos. Genera resentimiento.</div>
+    <div class="info-box green"><strong>✅ Afirmación:</strong> "Mis sentimientos importan Y los tuyos también." Te defiendes de forma respetuosa.</div>
+
+    ${qField('s78_agresion','¿Qué problemas has experimentado al actuar agresivamente en conflictos?',3)}
+    ${qField('s78_pasivo','¿Qué problemas has experimentado al responder pasivamente?',3)}
+    ${qField('s78_afirmacion','¿Cuáles son las ventajas de actuar con afirmación?',3)}
+
+    <h3>Modelo de resolución de conflictos (5 pasos)</h3>
+
+    <div class="conflict-step">
+      <div class="step-badge">1</div>
+      <div><div class="step-label">Identificar el problema</div>
+      <div class="step-hint">¿Cuál es el problema específico que causa el conflicto?</div>
+      <textarea rows="2" id="s78_p1" placeholder="El problema es..." oninput="ans('s78_p1',this.value)">${getAns('s78_p1')}</textarea></div>
+    </div>
+    <div class="conflict-step">
+      <div class="step-badge">2</div>
+      <div><div class="step-label">Identificar los sentimientos</div>
+      <div class="step-hint">¿Qué sientes respecto a este conflicto?</div>
+      <textarea rows="2" id="s78_p2" placeholder="Me siento..." oninput="ans('s78_p2',this.value)">${getAns('s78_p2')}</textarea></div>
+    </div>
+    <div class="conflict-step">
+      <div class="step-badge">3</div>
+      <div><div class="step-label">Identificar el impacto específico</div>
+      <div class="step-hint">¿Cuál es el resultado o impacto del problema?</div>
+      <textarea rows="2" id="s78_p3" placeholder="El impacto es..." oninput="ans('s78_p3',this.value)">${getAns('s78_p3')}</textarea></div>
+    </div>
+    <div class="conflict-step">
+      <div class="step-badge">4</div>
+      <div><div class="step-label">Decidir si resolver el conflicto</div>
+      <div class="step-hint">¿Vale la pena mencionarlo o es mejor dejarlo pasar?</div>
+      <textarea rows="2" id="s78_p4" placeholder="Mi decisión es..." oninput="ans('s78_p4',this.value)">${getAns('s78_p4')}</textarea></div>
+    </div>
+    <div class="conflict-step">
+      <div class="step-badge">5</div>
+      <div><div class="step-label">Abordar y resolver el conflicto</div>
+      <div class="step-hint">¿Cómo lo expresarás y cómo propones resolverlo?</div>
+      <textarea rows="3" id="s78_p5" placeholder="Lo abordaré diciendo..." oninput="ans('s78_p5',this.value)">${getAns('s78_p5')}</textarea></div>
+    </div>
+
+    ${weeklyReview('s78')}
+    ${completeBtn('s78')}
+  </div>`,
+
+// ── SESIONES 9-10 ──
+s910: ()=>`
+  <div class="card">
+    <div class="card-title"><span class="icon">👨‍👩‍👧</span>Sesiones 9 y 10 – La ira y la familia</div>
+    <div class="info-box warm">Analizarás cómo la ira se expresó en tu familia de origen y cómo eso afecta tus comportamientos actuales.</div>
+
+    <p>Para muchos de nosotros, las interacciones con nuestros padres han influido fuertemente en nuestros comportamientos, pensamientos y actitudes como adultos.</p>
+    <div class="info-box calm">⚠️ Explorar temas familiares puede generar sentimientos incómodos. Si surge algo difícil, habla con un consejero de confianza.</div>
+
+    <hr class="divider">
+    <h3>✍️ Reflexión sobre tu familia</h3>
+    ${qField('s910_familia','Describe tu familia. ¿Viviste con tu padre y madre? ¿Tienes hermanos? ¿Dónde creciste?',4)}
+    ${qField('s910_ira_familia','¿Cómo se expresaba la ira en tu familia cuando eras niño/a? ¿Alguna vez fuiste amenazado con violencia física?',4)}
+    ${qField('s910_emociones','¿Cómo se expresaban otras emociones (alegría, tristeza) en tu familia?',3)}
+    ${qField('s910_disciplina','¿Cómo se aplicaba la disciplina? ¿Hubo castigo físico? ¿Cómo respondías?',3)}
+    ${qField('s910_rol','¿Qué papel asumiste en tu familia? (héroe, rescatador, víctima, payaso, chivo expiatorio...)',3)}
+    ${qField('s910_mensajes','¿Qué mensajes recibiste sobre tu padre/los hombres? ¿Y sobre tu madre/las mujeres?',3)}
+    ${qField('s910_actual','¿Qué sentimientos, pensamientos y comportamientos se trasladan a tus relaciones actuales? ¿Qué sucedería si los abandonaras?',4)}
+
+    ${weeklyReview('s910')}
+    ${completeBtn('s910')}
+  </div>`,
+
+// ── SESIÓN 11 ──
+s11: ()=>`
+  <div class="card">
+    <div class="card-title"><span class="icon">1️⃣1️⃣</span>Sesión 11 – Práctica N.º 2</div>
+    <div class="info-box warm">Revisión completa de todos los conceptos del programa antes de la sesión de cierre.</div>
+
+    <h3>Todo lo aprendido</h3>
+    <div style="display:flex;flex-wrap:wrap;gap:8px;margin:12px 0">
+      ${['Mitos sobre la ira','Medidor de ira','Desencadenantes','4 tipos de indicios','Registro de conciencia','Planes de control','Apoyo social','Respiración profunda','Ciclo de agresión','Relajación muscular','Modelo A-B-C-D','Detención del pensamiento','Capacitación en afirmación','Modelo de resolución de conflictos','La ira y la familia'].map(t=>`<span class="tag">✓ ${t}</span>`).join('')}
+    </div>
+
+    ${qField('s11_util','¿Cuál de estas herramientas ha sido más útil para ti? ¿Por qué?',3)}
+    ${qField('s11_aplicando','¿Cuáles de estas estrategias estás aplicando actualmente en tu vida?',3)}
+    ${qField('s11_mejorar','¿En qué áreas todavía necesitas trabajar más?',3)}
+
+    ${angerMeter('s11_meter','¿Cómo está tu nivel de ira comparado con el inicio del programa?')}
+
+    ${weeklyReview('s11')}
+    ${completeBtn('s11')}
+  </div>`,
+
+// ── SESIÓN 12 ──
+s12: ()=>`
+  <div class="card">
+    <div class="card-title"><span class="icon">🎓</span>Sesión 12 – Cierre y graduación</div>
+    <div class="info-box green">🎉 ¡Llegaste a la sesión final! Esta es tu sesión de cierre y graduación.</div>
+
+    <h3>Ejercicio de cierre</h3>
+    ${qField('s12_aprendido','¿Qué has aprendido sobre la gestión de tu ira a lo largo de este programa?',4)}
+    ${qField('s12_plan_final','¿Cuáles son las estrategias en tu plan de control de ira? ¿Cómo usarás estas estrategias?',4)}
+    ${qField('s12_continuar','¿De qué maneras puedes continuar mejorando tus habilidades de gestión de la ira?',3)}
+
+    <hr class="divider">
+    <h3>🏅 Certificado de finalización</h3>
+    <div class="field"><label class="field-label">Tu nombre (para el certificado)</label>
+      <input type="text" id="cert_name" value="${state.certName||''}"
+        placeholder="Escribe tu nombre completo"
+        oninput="state.certName=this.value;save();renderCert()">
+    </div>
+    <div id="cert-render"></div>
+
+    ${completeBtn('s12','🎓 Completar programa')}
+  </div>`,
+
+// ── REGISTRO DE IRA ──
+log: ()=>{
+  const rows = (state.angerLog||[]).map((r,i)=>`<tr>
+    <td>${r.date||''}</td>
+    <td>${r.situation||''}</td>
+    <td>${r.cues||''}</td>
+    <td style="text-align:center;font-weight:700;color:${r.rating<=3?'#27ae60':r.rating<=6?'#e67e22':'#c0392b'}">${r.rating||''}</td>
+    <td>${r.behavior||''}</td>
+    <td>${r.consequences||''}</td>
+    <td>${r.strategies||''}</td>
+    <td><button class="log-delete" onclick="deleteLog(${i})">🗑</button></td>
+  </tr>`).join('');
+
+  return `<div class="card">
+    <div class="card-title"><span class="icon">📋</span>Registro de conciencia de la ira</div>
+    <p>Registra cada episodio de ira para identificar patrones. Se usa en todas las sesiones como evaluación del progreso.</p>
+
+    <div class="log-container">
+      <table class="log-table">
+        <thead><tr>
+          <th>Fecha</th><th>Situación</th><th>Indicios</th><th>🌡</th>
+          <th>Conducta</th><th>Consecuencias</th><th>Estrategias</th><th></th>
+        </tr></thead>
+        <tbody id="log-body">${rows||`<tr><td colspan="8" class="log-empty">Sin registros aún. Agrega el primero abajo ↓</td></tr>`}</tbody>
+      </table>
+    </div>
+
+    <div class="log-form" id="log-form">
+      <h3>➕ Agregar nuevo episodio</h3>
+      <div class="log-form-grid">
+        <div class="field"><label class="field-label">Fecha</label>
+          <input type="text" id="lf_date" placeholder="ej. Lunes 24/4"></div>
+        <div class="field"><label class="field-label">Nivel de ira (1-10)</label>
+          <input type="number" id="lf_rating" min="1" max="10" placeholder="1-10"></div>
+      </div>
+      <div class="field"><label class="field-label">¿Qué generó tu enojo? (Situación)</label>
+        <textarea rows="2" id="lf_situation" placeholder="Describe el evento..."></textarea></div>
+      <div class="field"><label class="field-label">Indicios (físicos, conductuales, emocionales, cognitivos)</label>
+        <textarea rows="2" id="lf_cues" placeholder="¿Qué sentiste / pensaste?"></textarea></div>
+      <div class="field"><label class="field-label">¿Qué hiciste? (Conducta)</label>
+        <textarea rows="2" id="lf_behavior" placeholder="¿Cómo reaccionaste?"></textarea></div>
+      <div class="field"><label class="field-label">Consecuencias</label>
+        <textarea rows="2" id="lf_consequences" placeholder="¿Qué pasó después?"></textarea></div>
+      <div class="field"><label class="field-label">Estrategias utilizadas</label>
+        <textarea rows="2" id="lf_strategies" placeholder="¿Qué hiciste para manejarlo?"></textarea></div>
+      <button class="btn btn-primary" onclick="addLog()">➕ Agregar al registro</button>
+    </div>
+  </div>`;
+},
+
+// ── PLAN DE CONTROL ──
+plan: ()=>{
+  const plan = state.plan||['','','','','',''];
+  while(plan.length<6) plan.push('');
+  return `<div class="card">
+    <div class="card-title"><span class="icon">🛠</span>Mi plan de control de la ira</div>
+    <p>Este es tu plan personalizado de estrategias. Puedes usarlo en el momento que sientas que la ira escala.</p>
+
+    <div class="info-box calm">📌 Ejemplo de plan: 1) Pedir una suspensión · 2) Respiración profunda · 3) Llamar a un amigo de confianza · 4) Hacer ejercicio · 5) Usar el modelo A-B-C-D</div>
+
+    <h3>Mis estrategias</h3>
+    ${plan.map((s,i)=>`<div class="plan-strategy">
+      <div class="num">${i+1}</div>
+      <input type="text" value="${s}" placeholder="Estrategia ${i+1}..."
+        oninput="updatePlan(${i},this.value)">
+    </div>`).join('')}
+    <button class="btn btn-outline btn-sm" onclick="addPlanRow()" style="margin-top:8px">➕ Agregar estrategia</button>
+
+    <hr class="divider">
+    <h3>📋 Plan de apoyo social</h3>
+    ${qField('plan_apoyo1','Persona 1: ¿A quién pedirías apoyo y cómo te ayudaría?',2)}
+    ${qField('plan_apoyo2','Persona 2: ¿A quién pedirías apoyo y cómo te ayudaría?',2)}
+    ${qField('plan_apoyo3','Persona 3: ¿A quién pedirías apoyo y cómo te ayudaría?',2)}
+
+    <button class="btn btn-success btn-sm" onclick="toast('✅ Plan guardado automáticamente')">💾 Plan guardado</button>
+  </div>`;
+}
+};
+
+// ═══════════════════════════════════════════════
+//  NAVIGATION
+// ═══════════════════════════════════════════════
+let currentSection = 'home';
+function showSection(id) {
+  currentSection = id;
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  const btn = document.getElementById('nav-'+id);
+  if(btn) { btn.classList.add('active'); btn.scrollIntoView({block:'nearest',inline:'center',behavior:'smooth'}); }
+  renderSection(id);
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function renderSection(id) {
+  const fn = sections[id];
+  document.getElementById('app').innerHTML = fn ? fn() : '<div class="card"><p>Sección no encontrada.</p></div>';
+  // Post-render initializations
+  if(id==='s12') renderCert();
+}
+
+// ═══════════════════════════════════════════════
+//  LOG CRUD
+// ═══════════════════════════════════════════════
+function addLog() {
+  const entry = {
+    date: document.getElementById('lf_date').value,
+    situation: document.getElementById('lf_situation').value,
+    cues: document.getElementById('lf_cues').value,
+    rating: parseInt(document.getElementById('lf_rating').value)||0,
+    behavior: document.getElementById('lf_behavior').value,
+    consequences: document.getElementById('lf_consequences').value,
+    strategies: document.getElementById('lf_strategies').value
+  };
+  if(!entry.situation && !entry.date) { toast('⚠️ Escribe al menos la situación'); return; }
+  state.angerLog.push(entry); save();
+  toast('✅ Episodio registrado');
+  renderSection('log');
+}
+function deleteLog(i) {
+  if(confirm('¿Eliminar este registro?')) { state.angerLog.splice(i,1); save(); renderSection('log'); }
+}
+
+// ═══════════════════════════════════════════════
+//  PLAN CRUD
+// ═══════════════════════════════════════════════
+function updatePlan(i, val) { state.plan[i]=val; save(); }
+function addPlanRow() {
+  state.plan.push(''); save(); renderSection('plan');
+  setTimeout(()=>{
+    const inputs = document.querySelectorAll('.plan-strategy input');
+    if(inputs.length) inputs[inputs.length-1].focus();
+  },100);
+}
+
+// ═══════════════════════════════════════════════
+//  BREATHING EXERCISE
+// ═══════════════════════════════════════════════
+let breathTimer=null, breathPhase=0, breathCount=0;
+const breathPhases=[
+  {name:'Inhala',dur:4,scale:1.4,color:'#1a5276'},
+  {name:'Mantén',dur:4,scale:1.4,color:'#196f3d'},
+  {name:'Exhala',dur:6,scale:1.0,color:'#922b21'},
+];
+let breathCycle=0, breathRound=0;
+function initBreathing() {
+  const sec = document.getElementById('breathing-section');
+  sec.innerHTML = `
+    <div class="breathing-outer">
+      <div class="breathing-phase" id="b-phase">Toca para comenzar</div>
+      <div class="breathing-circle" id="b-circle" onclick="toggleBreath()">Toca para<br>empezar</div>
+      <div class="breathing-count" id="b-count"></div>
+      <div class="breathing-msg" id="b-msg">Respira 3 ciclos completos</div>
+      <button class="btn btn-outline btn-sm" onclick="stopBreath()">⏹ Detener</button>
+    </div>`;
+}
+let breathActive=false, breathInterval=null, breathSec=0, breathPhaseIdx=0, breathRounds=0;
+function toggleBreath() {
+  if(!breathActive) startBreath(); else stopBreath();
+}
+function startBreath() {
+  breathActive=true; breathPhaseIdx=0; breathRounds=0; runBreathPhase();
+}
+function runBreathPhase() {
+  if(!breathActive) return;
+  const ph = breathPhases[breathPhaseIdx];
+  const circle = document.getElementById('b-circle');
+  const phaseEl = document.getElementById('b-phase');
+  const countEl = document.getElementById('b-count');
+  const msgEl = document.getElementById('b-msg');
+  if(!circle) return;
+  circle.style.transform = `scale(${ph.scale})`;
+  circle.style.background = `radial-gradient(circle at 40% 40%, #5dade2, ${ph.color})`;
+  circle.textContent = ph.name;
+  phaseEl.textContent = ph.name;
+  breathSec = ph.dur;
+  countEl.textContent = breathSec;
+  clearInterval(breathInterval);
+  breathInterval = setInterval(()=>{
+    breathSec--;
+    if(countEl) countEl.textContent = breathSec;
+    if(breathSec<=0) {
+      clearInterval(breathInterval);
+      breathPhaseIdx = (breathPhaseIdx+1) % breathPhases.length;
+      if(breathPhaseIdx===0) {
+        breathRounds++;
+        if(msgEl) msgEl.textContent = `Ciclo ${breathRounds} completado 🌿`;
+      }
+      setTimeout(runBreathPhase, 200);
+    }
+  },1000);
+}
+function stopBreath() {
+  breathActive=false; clearInterval(breathInterval);
+  const circle = document.getElementById('b-circle');
+  if(circle) { circle.style.transform='scale(1)'; circle.textContent='Terminado 🌿'; }
+  const phaseEl = document.getElementById('b-phase');
+  if(phaseEl) phaseEl.textContent = '¡Bien hecho!';
+  toast('🌿 Ejercicio de respiración completado');
+}
+
+// ═══════════════════════════════════════════════
+//  PMR EXERCISE
+// ═══════════════════════════════════════════════
+const pmrSteps = [
+  {name:'Manos',inst:'Cierra los puños con fuerza'},
+  {name:'Brazos',inst:'Dobla los brazos tensando los bíceps'},
+  {name:'Hombros',inst:'Sube los hombros hacia las orejas'},
+  {name:'Cuello y rostro',inst:'Haz una mueca tensa'},
+  {name:'Cuerpo completo',inst:'Observa tu cuerpo relajado y respira profundo'},
+];
+let pmrIdx=0, pmrPhase='tense', pmrInterval=null, pmrSec=0;
+function startPMR() {
+  pmrIdx=0; pmrPhase='tense'; pmrSec=5;
+  renderPMR();
+}
+function renderPMR() {
+  const el = document.getElementById('pmr-active');
+  if(!el) return;
+  if(pmrIdx>=pmrSteps.length) {
+    el.innerHTML=`<div class="info-box green" style="margin-top:12px">✅ <strong>¡Relajación completa!</strong> Observa cómo se sienten tus músculos totalmente relajados.</div>`;
+    return;
+  }
+  const step = pmrSteps[pmrIdx];
+  const isTense = pmrPhase==='tense';
+  el.innerHTML=`<div class="info-box calm" style="margin-top:12px;text-align:center">
+    <div style="font-size:0.8rem;color:var(--text-light);margin-bottom:4px">Paso ${pmrIdx+1} de ${pmrSteps.length}: <strong>${step.name}</strong></div>
+    <div style="font-size:1.1rem;font-weight:700;margin:8px 0">${isTense?'💪 '+step.inst:'😌 Suelta y relaja'}</div>
+    <div style="font-size:2rem;font-weight:800;color:var(--calm)">${pmrSec}</div>
+    <div style="font-size:0.78rem;color:var(--text-light)">${isTense?'Mantén la tensión...':'Libera la tensión...'}</div>
+  </div>`;
+  clearInterval(pmrInterval);
+  pmrInterval = setInterval(()=>{
+    pmrSec--;
+    const el2 = document.getElementById('pmr-active');
+    if(!el2) { clearInterval(pmrInterval); return; }
+    const cnt = el2.querySelector('div[style*="font-size:2rem"]');
+    if(cnt) cnt.textContent = pmrSec;
+    if(pmrSec<=0) {
+      clearInterval(pmrInterval);
+      if(pmrPhase==='tense') { pmrPhase='relax'; pmrSec=8; }
+      else { pmrPhase='tense'; pmrIdx++; pmrSec=5; }
+      setTimeout(renderPMR, 300);
+    }
+  },1000);
+}
+
+// ═══════════════════════════════════════════════
+//  CERTIFICATE
+// ═══════════════════════════════════════════════
+function renderCert() {
+  const el = document.getElementById('cert-render');
+  if(!el) return;
+  const name = state.certName || '___________________________';
+  const today = new Date().toLocaleDateString('es',{year:'numeric',month:'long',day:'numeric'});
+  el.innerHTML=`<div class="certificate">
+    <div class="cert-icon">🏅</div>
+    <h2>Certificado de Finalización</h2>
+    <p style="color:var(--text-light);font-size:0.85rem">Programa de Gestión de la Ira</p>
+    <div class="cert-name">Se certifica que <strong>${name}</strong></div>
+    <p style="font-size:0.85rem;color:var(--text-light)">ha completado exitosamente el programa de 12 sesiones de<br><strong>Gestión de la Ira</strong></p>
+    <div class="cert-date">📅 ${today}</div>
+    <button class="btn btn-outline btn-sm" style="margin-top:14px" onclick="window.print()">🖨️ Imprimir certificado</button>
+  </div>`;
+}
+
+// ═══════════════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════════════
+load();
+updateProgress();
+renderSection('home');
+</script>
+</body>
+</html>
