@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Gestión de la Ira</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <style>
     :root {
       --primary: #c0392b;
@@ -32,42 +33,84 @@
       font-size: 16px;
     }
 
+    /* ─── AUTH SCREEN ─── */
+    #auth-screen {
+      min-height: 100vh; display: flex; align-items: center; justify-content: center;
+      background: linear-gradient(135deg, #c0392b 0%, #922b21 40%, #2c3e50 100%);
+      padding: 24px;
+    }
+    .auth-box {
+      background: white; border-radius: 20px; padding: 40px 32px;
+      max-width: 420px; width: 100%; text-align: center;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    }
+    .auth-logo { font-size: 3.5rem; margin-bottom: 8px; }
+    .auth-box h1 { font-size: 1.5rem; color: var(--primary); margin-bottom: 6px; }
+    .auth-box .auth-sub { font-size: 0.9rem; color: var(--text-light); margin-bottom: 28px; line-height: 1.5; }
+    .auth-input {
+      width: 100%; border: 2px solid var(--border); border-radius: 10px;
+      padding: 14px 16px; font-size: 1rem; font-family: inherit;
+      color: var(--text); background: #fafafa; margin-bottom: 14px;
+      transition: border-color .2s;
+    }
+    .auth-input:focus { outline: none; border-color: var(--primary); background: white; }
+    .auth-btn {
+      width: 100%; background: var(--primary); color: white; border: none;
+      border-radius: 10px; padding: 15px; font-size: 1rem; font-weight: 700;
+      cursor: pointer; transition: background .2s; margin-bottom: 14px;
+    }
+    .auth-btn:hover { background: var(--primary-dark); }
+    .auth-btn:disabled { background: #ccc; cursor: not-allowed; }
+    #auth-msg { font-size: 0.88rem; margin-top: 8px; min-height: 20px; }
+    #auth-msg.ok { color: var(--success); }
+    #auth-msg.err { color: var(--primary); }
+    .auth-note { font-size: 0.78rem; color: var(--text-light); margin-top: 12px; line-height: 1.5; }
+
     /* ─── HEADER ─── */
     header {
       background: linear-gradient(135deg, #c0392b, #922b21);
-      color: white;
-      padding: 14px 20px 12px;
+      color: white; padding: 12px 16px;
       position: sticky; top: 0; z-index: 200;
       box-shadow: 0 2px 12px rgba(0,0,0,0.25);
-      display: flex; align-items: center; gap: 12px;
+      display: flex; align-items: center; gap: 10px;
     }
-    .header-icon { font-size: 1.6rem; }
-    header h1 { font-size: 1.1rem; font-weight: 700; line-height: 1.2; }
-    header p { font-size: 0.75rem; opacity: 0.8; margin-top: 2px; }
-    .header-progress { margin-left: auto; text-align: right; }
-    .header-progress span { font-size: 0.75rem; opacity: 0.85; }
-    .progress-mini { width: 80px; height: 5px; background: rgba(255,255,255,0.3); border-radius: 3px; margin-top: 3px; }
+    .header-icon { font-size: 1.5rem; flex-shrink: 0; }
+    .header-info { flex: 1; min-width: 0; }
+    header h1 { font-size: 1rem; font-weight: 700; line-height: 1.2; }
+    header p { font-size: 0.72rem; opacity: 0.8; margin-top: 1px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .header-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+    .header-progress { text-align: right; }
+    .header-progress span { font-size: 0.72rem; opacity: 0.85; }
+    .progress-mini { width: 70px; height: 5px; background: rgba(255,255,255,0.3); border-radius: 3px; margin-top: 3px; }
     .progress-mini-fill { height: 100%; background: #2ecc71; border-radius: 3px; transition: width .5s; }
+    .header-btn {
+      background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.4);
+      color: white; border-radius: 8px; padding: 6px 10px; font-size: 0.75rem;
+      font-weight: 600; cursor: pointer; transition: background .2s; white-space: nowrap;
+    }
+    .header-btn:hover { background: rgba(255,255,255,0.35); }
 
     /* ─── NAV TABS ─── */
     nav {
-      background: white;
-      border-bottom: 1px solid var(--border);
+      background: white; border-bottom: 1px solid var(--border);
       overflow-x: auto; white-space: nowrap;
-      -webkit-overflow-scrolling: touch;
-      scrollbar-width: none; position: sticky; top: 64px; z-index: 100;
+      -webkit-overflow-scrolling: touch; scrollbar-width: none;
+      position: sticky; top: 62px; z-index: 100;
     }
     nav::-webkit-scrollbar { display: none; }
     .nav-btn {
-      display: inline-block; padding: 11px 14px;
+      display: inline-block; padding: 11px 13px;
       border: none; background: none;
       color: var(--text-light); font-size: 0.8rem;
       cursor: pointer; border-bottom: 3px solid transparent;
-      transition: all .2s; white-space: nowrap; position: relative;
+      transition: all .2s; white-space: nowrap;
     }
     .nav-btn:hover { color: var(--primary); }
     .nav-btn.active { color: var(--primary); border-bottom-color: var(--primary); font-weight: 600; }
     .nav-btn.done::after { content: ' ✓'; color: var(--success); font-weight: 700; }
+    .nav-btn.admin-btn { color: #8e44ad; }
+    .nav-btn.admin-btn:hover { color: #6c3483; }
+    .nav-btn.admin-btn.active { color: #8e44ad; border-bottom-color: #8e44ad; }
 
     /* ─── MAIN ─── */
     main { max-width: 760px; margin: 0 auto; padding: 16px; }
@@ -75,8 +118,7 @@
     /* ─── CARDS ─── */
     .card {
       background: var(--card); border-radius: var(--radius);
-      padding: 20px; margin-bottom: 16px;
-      box-shadow: var(--shadow);
+      padding: 20px; margin-bottom: 16px; box-shadow: var(--shadow);
     }
     .card-title {
       font-size: 1.05rem; color: var(--primary); font-weight: 700;
@@ -131,24 +173,28 @@
     .btn-success:hover { background: #219a52; }
     .btn-outline { background: white; color: var(--primary); border: 2px solid var(--primary); }
     .btn-outline:hover { background: var(--primary-light); }
+    .btn-purple { background: #8e44ad; color: white; }
+    .btn-purple:hover { background: #6c3483; }
     .btn-sm { padding: 7px 14px; font-size: 0.82rem; }
     .btn-block { display: flex; width: 100%; justify-content: center; margin-top: 8px; }
     .btn-danger { background: #e74c3c; color: white; }
     .btn-danger:hover { background: #c0392b; }
 
+    /* ─── TAG CHIPS ─── */
+    .tag {
+      display: inline-block; background: #eafaf1; color: #1e8449;
+      border: 1px solid #a9dfbf; border-radius: 20px; padding: 3px 10px;
+      font-size: 0.78rem; font-weight: 600;
+    }
+
     /* ─── ANGER METER ─── */
     .meter-wrap {
       background: linear-gradient(135deg, #fdf2f2, #fce8e8);
-      border-radius: 12px; padding: 18px; margin: 14px 0;
-      border: 1px solid #f5c6c6;
+      border-radius: 12px; padding: 18px; margin: 14px 0; border: 1px solid #f5c6c6;
     }
     .meter-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
     .meter-title { font-size: 0.85rem; font-weight: 700; color: var(--primary-dark); }
-    .meter-val {
-      font-size: 2.2rem; font-weight: 800;
-      min-width: 60px; text-align: center;
-      transition: color .3s;
-    }
+    .meter-val { font-size: 2.2rem; font-weight: 800; min-width: 60px; text-align: center; transition: color .3s; }
     input[type="range"] {
       -webkit-appearance: none; width: 100%; height: 8px;
       border-radius: 4px; outline: none; cursor: pointer; border: none; padding: 0;
@@ -163,9 +209,7 @@
     .meter-desc { text-align: center; font-size: 0.78rem; color: var(--text-light); margin-top: 8px; font-style: italic; }
 
     /* ─── WEEKLY TRACKER ─── */
-    .weekly-grid {
-      display: grid; grid-template-columns: repeat(7,1fr); gap: 6px; margin: 12px 0;
-    }
+    .weekly-grid { display: grid; grid-template-columns: repeat(7,1fr); gap: 6px; margin: 12px 0; }
     .day-cell { text-align: center; }
     .day-lbl { font-size: 0.72rem; font-weight: 700; color: var(--text-light); margin-bottom: 4px; }
     .day-inp {
@@ -183,12 +227,10 @@
     .log-table tr:hover td { background: #fef9f9; }
     .log-delete { background: none; border: none; color: #e74c3c; cursor: pointer; font-size: 1rem; padding: 0 4px; }
     .log-empty { text-align: center; color: var(--text-light); font-style: italic; padding: 20px; }
-
-    /* ─── ADD LOG FORM ─── */
     .log-form { background: #fafafa; border-radius: 10px; padding: 16px; margin-top: 12px; border: 1.5px solid var(--border); }
     .log-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 
-    /* ─── BREATHING EXERCISE ─── */
+    /* ─── BREATHING ─── */
     .breathing-outer { text-align: center; padding: 10px 0; }
     .breathing-circle {
       width: 140px; height: 140px; border-radius: 50%;
@@ -196,8 +238,7 @@
       margin: 0 auto 14px; display: flex; align-items: center; justify-content: center;
       color: white; font-size: 0.9rem; font-weight: 700; text-align: center;
       box-shadow: 0 4px 24px rgba(41,128,185,.45);
-      transition: transform 4s ease-in-out;
-      cursor: pointer; user-select: none;
+      transition: transform 4s ease-in-out; cursor: pointer; user-select: none;
     }
     .breathing-phase { font-size: 1rem; font-weight: 700; color: var(--calm); margin-bottom: 4px; }
     .breathing-count { font-size: 2.5rem; font-weight: 800; color: var(--calm-dark); margin-bottom: 10px; }
@@ -223,7 +264,7 @@
     .step-label { font-size: 0.83rem; font-weight: 700; color: var(--calm-dark); margin-bottom: 5px; }
     .step-hint { font-size: 0.78rem; color: var(--text-light); margin-bottom: 6px; }
 
-    /* ─── ANGER CONTROL PLAN ─── */
+    /* ─── PLAN ─── */
     .plan-strategy {
       display: flex; align-items: center; gap: 8px;
       background: #f8f9fa; border-radius: 8px; padding: 10px 12px;
@@ -240,7 +281,7 @@
     /* ─── DIVIDER ─── */
     .divider { border: none; border-top: 1.5px dashed var(--border); margin: 20px 0; }
 
-    /* ─── HIGHLIGHT BOX ─── */
+    /* ─── INFO BOXES ─── */
     .info-box {
       border-radius: 10px; padding: 14px 16px; margin: 12px 0;
       font-size: 0.88rem; line-height: 1.6;
@@ -249,6 +290,7 @@
     .info-box.calm { background: var(--calm-light); border-left: 4px solid var(--calm); color: var(--calm-dark); }
     .info-box.red { background: var(--primary-light); border-left: 4px solid var(--primary); color: var(--primary-dark); }
     .info-box.green { background: #eafaf1; border-left: 4px solid var(--success); color: #1e8449; }
+    .info-box.purple { background: #f5eef8; border-left: 4px solid #8e44ad; color: #6c3483; }
 
     /* ─── CYCLE VISUAL ─── */
     .cycle-diagram {
@@ -257,8 +299,7 @@
     }
     .cycle-phase {
       background: white; border: 2px solid; border-radius: 10px;
-      padding: 10px 14px; text-align: center; font-size: 0.8rem; font-weight: 700;
-      min-width: 90px;
+      padding: 10px 14px; text-align: center; font-size: 0.8rem; font-weight: 700; min-width: 90px;
     }
     .cycle-phase.accum { border-color: #f39c12; color: #e67e22; }
     .cycle-phase.explo { border-color: var(--primary); color: var(--primary); }
@@ -270,13 +311,12 @@
     /* ─── SESSION COMPLETE BANNER ─── */
     .complete-banner {
       background: linear-gradient(135deg, #1e8449, #27ae60);
-      color: white; border-radius: 14px; padding: 20px;
-      text-align: center; margin-top: 20px;
+      color: white; border-radius: 14px; padding: 20px; text-align: center; margin-top: 20px;
     }
     .complete-banner h3 { font-size: 1.1rem; margin-bottom: 6px; color: white; }
     .complete-banner p { color: rgba(255,255,255,.85); font-size: 0.85rem; margin: 0; }
 
-    /* ─── GRADUATION ─── */
+    /* ─── CERTIFICATE ─── */
     .certificate {
       border: 4px double var(--primary); border-radius: 16px;
       padding: 30px; text-align: center; background: linear-gradient(135deg, #fff9f9, #fff);
@@ -287,22 +327,8 @@
     .certificate .cert-name { font-size: 1.1rem; color: var(--text); margin: 10px 0; }
     .certificate .cert-date { font-size: 0.85rem; color: var(--text-light); margin-top: 14px; }
 
-    /* ─── TOAST ─── */
-    #toast {
-      position: fixed; bottom: 24px; left: 50%;
-      transform: translateX(-50%) translateY(80px);
-      background: var(--success); color: white;
-      padding: 12px 24px; border-radius: 25px;
-      font-size: 0.88rem; font-weight: 600; z-index: 9999;
-      transition: transform .35s cubic-bezier(.175,.885,.32,1.275);
-      pointer-events: none; box-shadow: 0 4px 20px rgba(0,0,0,.2);
-    }
-    #toast.show { transform: translateX(-50%) translateY(0); }
-
     /* ─── WELCOME SCREEN ─── */
-    .welcome {
-      text-align: center; padding: 40px 16px;
-    }
+    .welcome { text-align: center; padding: 30px 16px; }
     .welcome-icon { font-size: 4rem; margin-bottom: 14px; }
     .welcome h2 { font-size: 1.5rem; color: var(--primary); margin-bottom: 10px; }
     .welcome p { font-size: 0.9rem; color: var(--text-light); max-width: 400px; margin: 0 auto 20px; }
@@ -318,54 +344,163 @@
     .session-card.done { border-color: var(--success); background: #eafaf1; }
     .session-card.done .s-num { color: var(--success); }
 
+    /* ─── ADMIN VIEW ─── */
+    .admin-user-card {
+      background: white; border-radius: 12px; padding: 16px;
+      margin-bottom: 10px; border: 2px solid var(--border);
+      display: flex; align-items: center; gap: 14px; box-shadow: var(--shadow);
+    }
+    .admin-user-card:hover { border-color: #8e44ad; }
+    .admin-avatar {
+      width: 44px; height: 44px; border-radius: 50%;
+      background: linear-gradient(135deg, #8e44ad, #6c3483);
+      color: white; display: flex; align-items: center; justify-content: center;
+      font-size: 1.2rem; font-weight: 700; flex-shrink: 0;
+    }
+    .admin-user-info { flex: 1; min-width: 0; }
+    .admin-user-email { font-weight: 700; font-size: 0.9rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .admin-user-meta { font-size: 0.78rem; color: var(--text-light); margin-top: 2px; }
+    .admin-progress-bar { height: 6px; background: var(--border); border-radius: 3px; margin-top: 6px; }
+    .admin-progress-fill { height: 100%; background: var(--success); border-radius: 3px; }
+
+    /* ─── REPORT ─── */
+    .report-header { background: linear-gradient(135deg, #fdf2f2, #f9f9ff); border-radius: 12px; padding: 18px; margin-bottom: 16px; }
+    .report-section { margin-bottom: 20px; border-bottom: 1px dashed var(--border); padding-bottom: 20px; }
+    .report-section h4 { font-size: 0.95rem; color: var(--primary); margin-bottom: 10px; font-weight: 700; }
+    .report-answer { background: #f8f9fa; border-radius: 8px; padding: 10px 12px; margin-bottom: 8px; font-size: 0.88rem; line-height: 1.6; }
+    .report-answer .ra-label { font-size: 0.75rem; font-weight: 700; color: var(--text-light); text-transform: uppercase; margin-bottom: 4px; }
+    .report-answer .ra-value { color: var(--text); }
+
+    /* ─── TOAST ─── */
+    #toast {
+      position: fixed; bottom: 24px; left: 50%;
+      transform: translateX(-50%) translateY(80px);
+      background: var(--success); color: white;
+      padding: 12px 24px; border-radius: 25px;
+      font-size: 0.88rem; font-weight: 600; z-index: 9999;
+      transition: transform .35s cubic-bezier(.175,.885,.32,1.275);
+      pointer-events: none; box-shadow: 0 4px 20px rgba(0,0,0,.2);
+    }
+    #toast.show { transform: translateX(-50%) translateY(0); }
+    #toast.err { background: var(--primary); }
+
+    /* ─── LOADING ─── */
+    .loading { text-align: center; padding: 40px; color: var(--text-light); }
+    .spinner { display: inline-block; width: 32px; height: 32px; border: 3px solid var(--border); border-top-color: var(--primary); border-radius: 50%; animation: spin .7s linear infinite; margin-bottom: 12px; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ─── RESPONSIVE ─── */
     @media (max-width: 480px) {
       main { padding: 12px 10px; }
       .log-form-grid { grid-template-columns: 1fr; }
       .session-grid { grid-template-columns: repeat(3,1fr); }
+      .auth-box { padding: 28px 20px; }
+    }
+
+    /* ─── PRINT ─── */
+    @media print {
+      #auth-screen, #app-wrapper > header, #app-wrapper > nav,
+      .btn, button, .complete-banner, #toast, .no-print { display: none !important; }
+      body { background: white; font-size: 12pt; }
+      main { max-width: 100%; padding: 0; }
+      .card { box-shadow: none; border: 1px solid #ddd; page-break-inside: avoid; }
+      .report-header { border: 2px solid var(--primary); }
+      @page { margin: 2cm; }
     }
   </style>
 </head>
 <body>
 
-<header>
-  <div class="header-icon">🔥</div>
-  <div>
+<!-- ══════════════ AUTH SCREEN ══════════════ -->
+<div id="auth-screen">
+  <div class="auth-box">
+    <div class="auth-logo">🔥</div>
     <h1>Gestión de la Ira</h1>
-    <p>Libro de actividades interactivo</p>
+    <p class="auth-sub">Programa interactivo de 12 sesiones.<br>Ingresa tu correo para acceder de forma segura.</p>
+    <input type="email" class="auth-input" id="auth-email" placeholder="tu@correo.com" autocomplete="email">
+    <button class="auth-btn" id="auth-btn" onclick="sendMagicLink()">✉️ Enviar enlace de acceso</button>
+    <div id="auth-msg"></div>
+    <p class="auth-note">Recibirás un correo con un enlace de acceso. No se requiere contraseña.</p>
   </div>
-  <div class="header-progress">
-    <span id="progress-text">0 / 12 sesiones</span>
-    <div class="progress-mini"><div class="progress-mini-fill" id="progress-bar" style="width:0%"></div></div>
-  </div>
-</header>
+</div>
 
-<nav id="main-nav">
-  <button class="nav-btn active" onclick="showSection('home')" id="nav-home">🏠 Inicio</button>
-  <button class="nav-btn" onclick="showSection('s0')" id="nav-s0">Intro</button>
-  <button class="nav-btn" onclick="showSection('s1')" id="nav-s1">S1</button>
-  <button class="nav-btn" onclick="showSection('s2')" id="nav-s2">S2</button>
-  <button class="nav-btn" onclick="showSection('s3')" id="nav-s3">S3</button>
-  <button class="nav-btn" onclick="showSection('s4')" id="nav-s4">S4</button>
-  <button class="nav-btn" onclick="showSection('s5')" id="nav-s5">S5</button>
-  <button class="nav-btn" onclick="showSection('s6')" id="nav-s6">S6</button>
-  <button class="nav-btn" onclick="showSection('s78')" id="nav-s78">S7-8</button>
-  <button class="nav-btn" onclick="showSection('s910')" id="nav-s910">S9-10</button>
-  <button class="nav-btn" onclick="showSection('s11')" id="nav-s11">S11</button>
-  <button class="nav-btn" onclick="showSection('s12')" id="nav-s12">S12</button>
-  <button class="nav-btn" onclick="showSection('log')" id="nav-log">📋 Registro</button>
-  <button class="nav-btn" onclick="showSection('plan')" id="nav-plan">🛠 Plan</button>
-</nav>
+<!-- ══════════════ APP ══════════════ -->
+<div id="app-wrapper" style="display:none">
 
-<main id="app"></main>
+  <header>
+    <div class="header-icon">🔥</div>
+    <div class="header-info">
+      <h1>Gestión de la Ira</h1>
+      <p id="header-user-email">Cargando...</p>
+    </div>
+    <div class="header-right">
+      <div class="header-progress">
+        <span id="progress-text">0 / 12</span>
+        <div class="progress-mini"><div class="progress-mini-fill" id="progress-bar" style="width:0%"></div></div>
+      </div>
+      <button class="header-btn no-print" onclick="showSection('report')" title="Ver mi reporte">📄</button>
+      <button class="header-btn no-print" onclick="logout()" title="Cerrar sesión">⬅️ Salir</button>
+    </div>
+  </header>
+
+  <nav id="main-nav">
+    <button class="nav-btn active" onclick="showSection('home')" id="nav-home">🏠 Inicio</button>
+    <button class="nav-btn" onclick="showSection('s0')" id="nav-s0">Intro</button>
+    <button class="nav-btn" onclick="showSection('s1')" id="nav-s1">S1</button>
+    <button class="nav-btn" onclick="showSection('s2')" id="nav-s2">S2</button>
+    <button class="nav-btn" onclick="showSection('s3')" id="nav-s3">S3</button>
+    <button class="nav-btn" onclick="showSection('s4')" id="nav-s4">S4</button>
+    <button class="nav-btn" onclick="showSection('s5')" id="nav-s5">S5</button>
+    <button class="nav-btn" onclick="showSection('s6')" id="nav-s6">S6</button>
+    <button class="nav-btn" onclick="showSection('s78')" id="nav-s78">S7-8</button>
+    <button class="nav-btn" onclick="showSection('s910')" id="nav-s910">S9-10</button>
+    <button class="nav-btn" onclick="showSection('s11')" id="nav-s11">S11</button>
+    <button class="nav-btn" onclick="showSection('s12')" id="nav-s12">S12</button>
+    <button class="nav-btn" onclick="showSection('log')" id="nav-log">📋 Registro</button>
+    <button class="nav-btn" onclick="showSection('plan')" id="nav-plan">🛠 Plan</button>
+    <button class="nav-btn admin-btn" onclick="showSection('admin')" id="nav-admin" style="display:none">👥 Pacientes</button>
+  </nav>
+
+  <main id="app"></main>
+
+</div>
 
 <div id="toast"></div>
 
 <script>
 // ═══════════════════════════════════════════════
-//  STATE & PERSISTENCE
+//  CONFIG
 // ═══════════════════════════════════════════════
-const KEY = 'ira_app_v2';
-let state = {
+const SUPABASE_URL = 'https://ehyfijlgmcopgndpigby.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVoeWZpamxnbWNvcGduZHBpZ2J5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU3ODAzNDUsImV4cCI6MjA5MTM1NjM0NX0.3RPMiK_VdDVr8GujDbQThXxufz_pQltXK32_apaAtxw';
+const ADMIN_EMAIL = 'sky.celeste14@gmail.com';
+const APP_URL = location.origin + location.pathname.replace(/\/$/, '');
+
+const SESSION_NAMES = {
+  s0: 'Introducción',
+  s1: 'Sesión 1 – Descripción general',
+  s2: 'Sesión 2 – Eventos e indicios',
+  s3: 'Sesión 3 – Planes de control',
+  s4: 'Sesión 4 – Ciclo de agresión',
+  s5: 'Sesión 5 – Reestructuración cognitiva',
+  s6: 'Sesión 6 – Práctica N.º 1',
+  s78: 'Sesiones 7-8 – Afirmación y conflictos',
+  s910: 'Sesiones 9-10 – La ira y la familia',
+  s11: 'Sesión 11 – Práctica N.º 2',
+  s12: 'Sesión 12 – Cierre y graduación',
+};
+
+const { createClient } = supabase;
+const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+// ═══════════════════════════════════════════════
+//  STATE
+// ═══════════════════════════════════════════════
+let currentUser = null;
+let reportState = null; // set when admin views another user's data
+let reportUserEmail = null;
+
+const defaultState = () => ({
   completed: [],
   answers: {},
   weekly: {},
@@ -374,33 +509,189 @@ let state = {
   abcd: {},
   conflict: {},
   certName: ''
-};
-function load() {
-  try { const d = localStorage.getItem(KEY); if(d) state = {...state, ...JSON.parse(d)}; } catch(e){}
+});
+
+let state = defaultState();
+
+function getActiveState() { return reportState || state; }
+
+// ═══════════════════════════════════════════════
+//  AUTH
+// ═══════════════════════════════════════════════
+async function sendMagicLink() {
+  const emailInput = document.getElementById('auth-email');
+  const btn = document.getElementById('auth-btn');
+  const msg = document.getElementById('auth-msg');
+  const email = emailInput.value.trim();
+
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    msg.className = 'err'; msg.textContent = '⚠️ Ingresa un correo válido.'; return;
+  }
+
+  btn.disabled = true; btn.textContent = 'Enviando...';
+  msg.className = ''; msg.textContent = '';
+
+  const { error } = await sb.auth.signInWithOtp({
+    email,
+    options: { emailRedirectTo: APP_URL }
+  });
+
+  if (error) {
+    msg.className = 'err'; msg.textContent = '❌ Error: ' + error.message;
+    btn.disabled = false; btn.textContent = '✉️ Enviar enlace de acceso';
+  } else {
+    msg.className = 'ok';
+    msg.innerHTML = `✅ ¡Listo! Revisa tu correo <strong>${email}</strong> y haz clic en el enlace para ingresar.`;
+    btn.textContent = '✉️ Reenviar enlace';
+    btn.disabled = false;
+  }
 }
-function save() {
-  localStorage.setItem(KEY, JSON.stringify(state));
+
+async function logout() {
+  await sb.auth.signOut();
+  showAuthScreen();
+}
+
+function showApp() {
+  document.getElementById('auth-screen').style.display = 'none';
+  document.getElementById('app-wrapper').style.display = '';
+  const email = currentUser?.email || '';
+  document.getElementById('header-user-email').textContent = email;
+  if (email === ADMIN_EMAIL) {
+    document.getElementById('nav-admin').style.display = '';
+  }
   updateProgress();
+  renderSection('home');
 }
-function ans(id, val) { state.answers[id] = val; save(); }
-function getAns(id) { return state.answers[id] || ''; }
-function toast(msg) {
+
+function showAuthScreen() {
+  document.getElementById('auth-screen').style.display = '';
+  document.getElementById('app-wrapper').style.display = 'none';
+  state = defaultState();
+}
+
+// Enter key on auth
+document.getElementById('auth-email').addEventListener('keydown', e => {
+  if (e.key === 'Enter') sendMagicLink();
+});
+
+// ═══════════════════════════════════════════════
+//  SUPABASE DATA
+// ═══════════════════════════════════════════════
+async function loadStateFromDB() {
+  try {
+    const { data, error } = await sb
+      .from('ira_user_state')
+      .select('state')
+      .eq('user_id', currentUser.id)
+      .single();
+    if (data?.state) {
+      state = { ...defaultState(), ...data.state };
+    }
+  } catch(e) {
+    // First time user — state stays as default
+  }
+}
+
+let saveTimer = null;
+function debouncedSave() {
+  updateProgress();
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(saveStateToDB, 1500);
+}
+
+async function saveStateToDB() {
+  if (!currentUser) return;
+  try {
+    await sb.from('ira_user_state').upsert({
+      user_id: currentUser.id,
+      user_email: currentUser.email,
+      state: state,
+      updated_at: new Date().toISOString()
+    }, { onConflict: 'user_id' });
+  } catch(e) {
+    console.error('Save error:', e);
+  }
+}
+
+async function recordCompletedSession(id) {
+  if (!currentUser) return;
+  try {
+    await sb.from('ira_completed_sessions').upsert({
+      user_id: currentUser.id,
+      user_email: currentUser.email,
+      session_key: id,
+      session_name: SESSION_NAMES[id] || id,
+      completed_at: new Date().toISOString()
+    }, { onConflict: 'user_id,session_key' });
+  } catch(e) {
+    console.error('Record session error:', e);
+  }
+}
+
+async function notifyCeleste(sessionId) {
+  try {
+    const sessionName = SESSION_NAMES[sessionId] || sessionId;
+    const fecha = new Date().toLocaleDateString('es', { year: 'numeric', month: 'long', day: 'numeric' });
+    await fetch('https://formsubmit.co/ajax/sky.celeste14@gmail.com', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body: JSON.stringify({
+        _subject: `✅ Sesión completada: ${sessionName}`,
+        _captcha: 'false',
+        _template: 'box',
+        usuario: currentUser.email,
+        sesion_completada: sessionName,
+        fecha: fecha,
+        sesiones_totales: state.completed.length + ' de 12',
+        mensaje: `El usuario ${currentUser.email} completó la "${sessionName}" el ${fecha}. Llevan ${state.completed.length} de 12 sesiones completadas.`
+      })
+    });
+  } catch(e) {
+    // Silent — FormSubmit may need activation on first use
+    console.log('Notification sent (may need activation for first use)');
+  }
+}
+
+// ═══════════════════════════════════════════════
+//  STATE HELPERS
+// ═══════════════════════════════════════════════
+function ans(id, val) {
+  if (reportState) return; // read-only when viewing another user
+  state.answers[id] = val; debouncedSave();
+}
+function getAns(id) { return getActiveState().answers?.[id] || ''; }
+
+function toast(msg, isErr=false) {
   const t = document.getElementById('toast');
-  t.textContent = msg; t.classList.add('show');
-  setTimeout(()=>t.classList.remove('show'), 2500);
+  t.textContent = msg;
+  t.classList.toggle('err', isErr);
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 2800);
 }
+
 function updateProgress() {
   const n = state.completed.length;
-  document.getElementById('progress-text').textContent = `${n} / 12 sesiones`;
-  document.getElementById('progress-bar').style.width = `${Math.round(n/12*100)}%`;
+  const ptEl = document.getElementById('progress-text');
+  const pbEl = document.getElementById('progress-bar');
+  if (ptEl) ptEl.textContent = `${n} / 12`;
+  if (pbEl) pbEl.style.width = `${Math.round(n/12*100)}%`;
   ['s1','s2','s3','s4','s5','s6','s78','s910','s11','s12'].forEach(id => {
     const btn = document.getElementById('nav-'+id);
     if(btn) { if(state.completed.includes(id)) btn.classList.add('done'); else btn.classList.remove('done'); }
   });
 }
-function markDone(id) {
-  if(!state.completed.includes(id)) state.completed.push(id);
-  save(); toast('✅ Sesión marcada como completada');
+
+async function markDone(id) {
+  if (reportState) return;
+  const alreadyDone = state.completed.includes(id);
+  if (!alreadyDone) {
+    state.completed.push(id);
+    debouncedSave();
+    await recordCompletedSession(id);
+    await notifyCeleste(id);
+  }
+  toast('✅ ¡Sesión completada!');
   renderSection(currentSection);
 }
 
@@ -408,16 +699,24 @@ function markDone(id) {
 //  COMPONENTS
 // ═══════════════════════════════════════════════
 function qField(id, prompt, rows=3) {
+  if (reportState) {
+    const val = getAns(id);
+    if (!val) return '';
+    return `<div class="report-answer"><div class="ra-label">${prompt}</div><div class="ra-value">${val.replace(/\n/g,'<br>')}</div></div>`;
+  }
   return `<div class="question">${prompt}</div>
     <div class="field"><textarea rows="${rows}" id="${id}" placeholder="Escribe aquí..."
       oninput="ans('${id}',this.value)">${getAns(id)}</textarea></div>`;
 }
-function saveBtn(msg='💾 Guardar respuestas') {
-  return `<button class="btn btn-calm btn-sm" onclick="toast('✅ Guardado automáticamente')">${msg}</button>`;
-}
+
 function weeklyTracker(sid) {
   const days = ['L','Ma','Mi','J','V','S','D'];
-  const vals = state.weekly[sid] || {};
+  const vals = getActiveState().weekly?.[sid] || {};
+  if (reportState) {
+    const vals2 = Object.values(vals).filter(v=>v);
+    if (!vals2.length) return '';
+    return `<div class="report-answer"><div class="ra-label">Rastreador semanal</div><div class="ra-value">${days.map(d=>vals[d]?`${d}:${vals[d]}`:'').filter(Boolean).join(' · ')}</div></div>`;
+  }
   return `<div class="info-box warm">📅 Para cada día de esta semana, registra el número más alto que alcanzas en el medidor de ira:</div>
   <div class="weekly-grid">${days.map(d=>`<div class="day-cell">
     <div class="day-lbl">${d}</div>
@@ -425,11 +724,18 @@ function weeklyTracker(sid) {
       oninput="saveWeekly('${sid}','${d}',this.value)" placeholder="—">
   </div>`).join('')}</div>`;
 }
+
 function saveWeekly(sid,day,val) {
+  if (reportState) return;
   if(!state.weekly[sid]) state.weekly[sid]={};
-  state.weekly[sid][day]=val; save();
+  state.weekly[sid][day]=val; debouncedSave();
 }
+
 function weeklyReview(sid) {
+  if (reportState) {
+    return qField(sid+'_rev_evento','¿Cuál fue el número más alto en el medidor de ira? ¿Qué evento lo condujo a la ira?',2) +
+      weeklyTracker(sid);
+  }
   const fields = ['físicos','conductuales','emocionales','cognitivos'];
   return `<hr class="divider">
   <h3>📊 Supervisión de la ira – semana anterior</h3>
@@ -442,19 +748,21 @@ function weeklyReview(sid) {
   ${qField(sid+'_estrategias','¿Qué estrategias usaste para evitar llegar a 10?',2)}
   ${weeklyTracker(sid)}`;
 }
+
 function completeBtn(id, label='Marcar sesión como completada') {
-  const done = state.completed.includes(id);
+  if (reportState) return '';
+  const done = getActiveState().completed?.includes(id);
   if(done) return `<div class="complete-banner"><h3>🎉 ¡Sesión completada!</h3><p>Has terminado esta sesión. Puedes volver a editarla en cualquier momento.</p></div>`;
   return `<button class="btn btn-success btn-block complete-btn" onclick="markDone('${id}')">✅ ${label}</button>`;
 }
 
-// ═══════════════════════════════════════════════
-//  ANGER METER COMPONENT
-// ═══════════════════════════════════════════════
 function angerMeter(id, label='Tu nivel de ira ahora mismo') {
   const val = parseInt(getAns(id))||1;
   const descs = ['','Calma total 😌','Muy tranquilo 😊','Tranquilo 🙂','Leve irritación 😐','Molesto 😒','Enojado 😠','Muy enojado 😤','Ira intensa 😡','Casi sin control 🤬','¡Pérdida de control! 💥'];
   const color = val<=3?'#27ae60':val<=6?'#e67e22':'#c0392b';
+  if (reportState) {
+    return `<div class="report-answer"><div class="ra-label">${label}</div><div class="ra-value" style="color:${color};font-weight:700;font-size:1.1rem">${val}/10 — ${descs[val]}</div></div>`;
+  }
   return `<div class="meter-wrap">
     <div class="meter-top"><span class="meter-title">🌡 ${label}</span><span class="meter-val" id="${id}_val" style="color:${color}">${val}</span></div>
     <input type="range" min="1" max="10" value="${val}" id="${id}_range"
@@ -462,6 +770,7 @@ function angerMeter(id, label='Tu nivel de ira ahora mismo') {
     <div class="meter-desc" id="${id}_desc">${descs[val]}</div>
   </div>`;
 }
+
 function updateMeter(id, val) {
   const descs = ['','Calma total 😌','Muy tranquilo 😊','Tranquilo 🙂','Leve irritación 😐','Molesto 😒','Enojado 😠','Muy enojado 😤','Ira intensa 😡','Casi sin control 🤬','¡Pérdida de control! 💥'];
   const color = val<=3?'#27ae60':val<=6?'#e67e22':'#c0392b';
@@ -472,7 +781,7 @@ function updateMeter(id, val) {
 }
 
 // ═══════════════════════════════════════════════
-//  SECTIONS CONTENT
+//  SECTIONS
 // ═══════════════════════════════════════════════
 const sections = {
 
@@ -481,7 +790,7 @@ home: ()=>`
     <div class="welcome">
       <div class="welcome-icon">🧠</div>
       <h2>Gestión de la Ira</h2>
-      <p>Libro de actividades interactivo. Completa las 12 sesiones a tu ritmo. Todo se guarda automáticamente en tu dispositivo.</p>
+      <p>Libro de actividades interactivo. Completa las 12 sesiones a tu ritmo. Tu progreso se guarda en la nube.</p>
       <div class="session-grid">
         ${[
           {id:'s0',n:'📖',t:'Introducción'},
@@ -499,6 +808,9 @@ home: ()=>`
           <div class="s-num">${s.n}</div>
           <div class="s-name">${s.t}${state.completed.includes(s.id)?'<br>✓':''}
           </div></div>`).join('')}
+      </div>
+      <div style="margin-top:20px">
+        <button class="btn btn-outline btn-sm" onclick="showSection('report')">📄 Ver mi reporte</button>
       </div>
     </div>
   </div>`,
@@ -616,9 +928,9 @@ s2: ()=>`
     ${qField('s2_emocionales','Mis indicios EMOCIONALES:',2)}
     ${qField('s2_cognitivos','Mis indicios COGNITIVOS (lo que pienso):',2)}
 
-    <h3>📋 Registro de conciencia de la ira</h3>
+    ${reportState ? '' : `<h3>📋 Registro de conciencia de la ira</h3>
     <p>Usa el registro en la sección <strong>"📋 Registro"</strong> del menú para agregar episodios de ira durante la semana.</p>
-    <button class="btn btn-calm btn-sm" onclick="showSection('log')">📋 Ir al Registro de ira →</button>
+    <button class="btn btn-calm btn-sm" onclick="showSection('log')">📋 Ir al Registro de ira →</button>`}
 
     ${weeklyReview('s2')}
     ${completeBtn('s2')}
@@ -646,18 +958,18 @@ s3: ()=>`
     <p>Tener personas que entiendan y apoyen tus esfuerzos es clave. Puede ser familia, amigos de confianza, patrocinadores, grupos de ayuda mutua.</p>
     ${qField('s3_apoyo','¿A quién buscarías para apoyo social? ¿Cómo le pedirías ayuda?',3)}
 
-    <h3>🧘 Ejercicio: Respiración profunda</h3>
+    ${reportState ? '' : `<h3>🧘 Ejercicio: Respiración profunda</h3>
     <div id="breathing-section"></div>
-    <button class="btn btn-calm btn-sm" onclick="initBreathing()">▶ Iniciar ejercicio de respiración</button>
+    <button class="btn btn-calm btn-sm" onclick="initBreathing()">▶ Iniciar ejercicio de respiración</button>`}
 
     <hr class="divider">
     <h3>✍️ Actividades</h3>
     ${qField('s3_suspension_cuando','¿En qué situaciones usarías la suspensión? Descríbelas.',3)}
     ${qField('s3_estrategias','¿Qué estrategias específicas usarías para controlar tu ira?',3)}
 
-    <h3>🛠 Tu plan de control de ira</h3>
+    ${reportState ? '' : `<h3>🛠 Tu plan de control de ira</h3>
     <p>Ve a la sección <strong>"🛠 Plan"</strong> del menú para construir tu plan personalizado.</p>
-    <button class="btn btn-primary btn-sm" onclick="showSection('plan')">🛠 Ir a mi Plan →</button>
+    <button class="btn btn-primary btn-sm" onclick="showSection('plan')">🛠 Ir a mi Plan →</button>`}
 
     ${weeklyReview('s3')}
     ${completeBtn('s3')}
@@ -693,7 +1005,7 @@ s4: ()=>`
     ${qField('s4_fase7','Si alcanzas un 7 en el medidor, ¿en qué fase del ciclo estás? ¿Qué harías?',3)}
     ${qField('s4_interrumpir','¿Cómo puedes interrumpir el ciclo antes de llegar a la explosión?',3)}
 
-    <h3>🧘 Ejercicio: Relajación muscular progresiva</h3>
+    ${reportState ? '' : `<h3>🧘 Ejercicio: Relajación muscular progresiva</h3>
     <div id="pmr-section">
       <div class="info-box calm">
         <p><strong>Instrucciones:</strong> Siéntate cómodamente. Cierra los ojos si lo deseas.</p>
@@ -707,7 +1019,7 @@ s4: ()=>`
       </div>
       <button class="btn btn-calm btn-sm" onclick="startPMR()">▶ Guía de relajación muscular paso a paso</button>
       <div id="pmr-active"></div>
-    </div>
+    </div>`}
 
     ${weeklyReview('s4')}
     ${completeBtn('s4')}
@@ -738,16 +1050,16 @@ s5: ()=>`
     <h3>Practica el modelo A-B-C-D</h3>
     <div class="abcd-item"><div class="abcd-badge" style="background:var(--warn)">A</div>
       <div class="field"><label class="field-label">Describe el evento activador</label>
-      <textarea rows="2" id="s5_a" placeholder="¿Qué pasó?" oninput="ans('s5_a',this.value)">${getAns('s5_a')}</textarea></div></div>
+      ${reportState ? `<div class="ra-value">${getAns('s5_a')||'—'}</div>` : `<textarea rows="2" id="s5_a" placeholder="¿Qué pasó?" oninput="ans('s5_a',this.value)">${getAns('s5_a')}</textarea>`}</div></div>
     <div class="abcd-item"><div class="abcd-badge" style="background:var(--warn)">B</div>
       <div class="field"><label class="field-label">¿Qué te dijiste a ti mismo? ¿Cuáles fueron tus creencias?</label>
-      <textarea rows="2" id="s5_b" placeholder="Mis pensamientos y creencias..." oninput="ans('s5_b',this.value)">${getAns('s5_b')}</textarea></div></div>
+      ${reportState ? `<div class="ra-value">${getAns('s5_b')||'—'}</div>` : `<textarea rows="2" id="s5_b" placeholder="Mis pensamientos y creencias..." oninput="ans('s5_b',this.value)">${getAns('s5_b')}</textarea>`}</div></div>
     <div class="abcd-item"><div class="abcd-badge" style="background:var(--primary)">C</div>
       <div class="field"><label class="field-label">¿Cómo te sentiste como consecuencia?</label>
-      <textarea rows="2" id="s5_c" placeholder="Mis emociones..." oninput="ans('s5_c',this.value)">${getAns('s5_c')}</textarea></div></div>
+      ${reportState ? `<div class="ra-value">${getAns('s5_c')||'—'}</div>` : `<textarea rows="2" id="s5_c" placeholder="Mis emociones..." oninput="ans('s5_c',this.value)">${getAns('s5_c')}</textarea>`}</div></div>
     <div class="abcd-item"><div class="abcd-badge" style="background:var(--success)">D</div>
       <div class="field"><label class="field-label">Disputa: ¿cómo podrías interpretar el evento de forma más realista?</label>
-      <textarea rows="3" id="s5_d" placeholder="Una perspectiva más racional sería..." oninput="ans('s5_d',this.value)">${getAns('s5_d')}</textarea></div></div>
+      ${reportState ? `<div class="ra-value">${getAns('s5_d')||'—'}</div>` : `<textarea rows="3" id="s5_d" placeholder="Una perspectiva más racional sería..." oninput="ans('s5_d',this.value)">${getAns('s5_d')}</textarea>`}</div></div>
 
     <h3>Detención del pensamiento</h3>
     <p>Una alternativa al A-B-C-D: simplemente decirte a ti mismo que abandones los pensamientos que te hacen enojar.</p>
@@ -797,36 +1109,35 @@ s78: ()=>`
     ${qField('s78_afirmacion','¿Cuáles son las ventajas de actuar con afirmación?',3)}
 
     <h3>Modelo de resolución de conflictos (5 pasos)</h3>
-
     <div class="conflict-step">
       <div class="step-badge">1</div>
       <div><div class="step-label">Identificar el problema</div>
       <div class="step-hint">¿Cuál es el problema específico que causa el conflicto?</div>
-      <textarea rows="2" id="s78_p1" placeholder="El problema es..." oninput="ans('s78_p1',this.value)">${getAns('s78_p1')}</textarea></div>
+      ${reportState ? `<div class="ra-value">${getAns('s78_p1')||'—'}</div>` : `<textarea rows="2" id="s78_p1" placeholder="El problema es..." oninput="ans('s78_p1',this.value)">${getAns('s78_p1')}</textarea>`}</div>
     </div>
     <div class="conflict-step">
       <div class="step-badge">2</div>
       <div><div class="step-label">Identificar los sentimientos</div>
       <div class="step-hint">¿Qué sientes respecto a este conflicto?</div>
-      <textarea rows="2" id="s78_p2" placeholder="Me siento..." oninput="ans('s78_p2',this.value)">${getAns('s78_p2')}</textarea></div>
+      ${reportState ? `<div class="ra-value">${getAns('s78_p2')||'—'}</div>` : `<textarea rows="2" id="s78_p2" placeholder="Me siento..." oninput="ans('s78_p2',this.value)">${getAns('s78_p2')}</textarea>`}</div>
     </div>
     <div class="conflict-step">
       <div class="step-badge">3</div>
       <div><div class="step-label">Identificar el impacto específico</div>
       <div class="step-hint">¿Cuál es el resultado o impacto del problema?</div>
-      <textarea rows="2" id="s78_p3" placeholder="El impacto es..." oninput="ans('s78_p3',this.value)">${getAns('s78_p3')}</textarea></div>
+      ${reportState ? `<div class="ra-value">${getAns('s78_p3')||'—'}</div>` : `<textarea rows="2" id="s78_p3" placeholder="El impacto es..." oninput="ans('s78_p3',this.value)">${getAns('s78_p3')}</textarea>`}</div>
     </div>
     <div class="conflict-step">
       <div class="step-badge">4</div>
       <div><div class="step-label">Decidir si resolver el conflicto</div>
       <div class="step-hint">¿Vale la pena mencionarlo o es mejor dejarlo pasar?</div>
-      <textarea rows="2" id="s78_p4" placeholder="Mi decisión es..." oninput="ans('s78_p4',this.value)">${getAns('s78_p4')}</textarea></div>
+      ${reportState ? `<div class="ra-value">${getAns('s78_p4')||'—'}</div>` : `<textarea rows="2" id="s78_p4" placeholder="Mi decisión es..." oninput="ans('s78_p4',this.value)">${getAns('s78_p4')}</textarea>`}</div>
     </div>
     <div class="conflict-step">
       <div class="step-badge">5</div>
       <div><div class="step-label">Abordar y resolver el conflicto</div>
       <div class="step-hint">¿Cómo lo expresarás y cómo propones resolverlo?</div>
-      <textarea rows="3" id="s78_p5" placeholder="Lo abordaré diciendo..." oninput="ans('s78_p5',this.value)">${getAns('s78_p5')}</textarea></div>
+      ${reportState ? `<div class="ra-value">${getAns('s78_p5')||'—'}</div>` : `<textarea rows="3" id="s78_p5" placeholder="Lo abordaré diciendo..." oninput="ans('s78_p5',this.value)">${getAns('s78_p5')}</textarea>`}</div>
     </div>
 
     ${weeklyReview('s78')}
@@ -890,19 +1201,27 @@ s12: ()=>`
 
     <hr class="divider">
     <h3>🏅 Certificado de finalización</h3>
+    ${reportState ? `<div class="certificate">
+      <div class="cert-icon">🏅</div>
+      <h2>Certificado de Finalización</h2>
+      <p style="color:var(--text-light);font-size:0.85rem">Programa de Gestión de la Ira</p>
+      <div class="cert-name">Se certifica que <strong>${getActiveState().certName || reportUserEmail || '—'}</strong></div>
+      <p style="font-size:0.85rem;color:var(--text-light)">ha completado el programa de 12 sesiones de<br><strong>Gestión de la Ira</strong></p>
+    </div>` : `
     <div class="field"><label class="field-label">Tu nombre (para el certificado)</label>
       <input type="text" id="cert_name" value="${state.certName||''}"
         placeholder="Escribe tu nombre completo"
-        oninput="state.certName=this.value;save();renderCert()">
+        oninput="state.certName=this.value;debouncedSave();renderCert()">
     </div>
-    <div id="cert-render"></div>
+    <div id="cert-render"></div>`}
 
     ${completeBtn('s12','🎓 Completar programa')}
   </div>`,
 
 // ── REGISTRO DE IRA ──
 log: ()=>{
-  const rows = (state.angerLog||[]).map((r,i)=>`<tr>
+  const activeState = getActiveState();
+  const rows = (activeState.angerLog||[]).map((r,i)=>`<tr>
     <td>${r.date||''}</td>
     <td>${r.situation||''}</td>
     <td>${r.cues||''}</td>
@@ -910,7 +1229,7 @@ log: ()=>{
     <td>${r.behavior||''}</td>
     <td>${r.consequences||''}</td>
     <td>${r.strategies||''}</td>
-    <td><button class="log-delete" onclick="deleteLog(${i})">🗑</button></td>
+    ${reportState ? '' : `<td><button class="log-delete" onclick="deleteLog(${i})">🗑</button></td>`}
   </tr>`).join('');
 
   return `<div class="card">
@@ -921,13 +1240,13 @@ log: ()=>{
       <table class="log-table">
         <thead><tr>
           <th>Fecha</th><th>Situación</th><th>Indicios</th><th>🌡</th>
-          <th>Conducta</th><th>Consecuencias</th><th>Estrategias</th><th></th>
+          <th>Conducta</th><th>Consecuencias</th><th>Estrategias</th>${reportState ? '' : '<th></th>'}
         </tr></thead>
-        <tbody id="log-body">${rows||`<tr><td colspan="8" class="log-empty">Sin registros aún. Agrega el primero abajo ↓</td></tr>`}</tbody>
+        <tbody>${rows||`<tr><td colspan="${reportState?7:8}" class="log-empty">Sin registros aún.</td></tr>`}</tbody>
       </table>
     </div>
 
-    <div class="log-form" id="log-form">
+    ${reportState ? '' : `<div class="log-form">
       <h3>➕ Agregar nuevo episodio</h3>
       <div class="log-form-grid">
         <div class="field"><label class="field-label">Fecha</label>
@@ -946,27 +1265,30 @@ log: ()=>{
       <div class="field"><label class="field-label">Estrategias utilizadas</label>
         <textarea rows="2" id="lf_strategies" placeholder="¿Qué hiciste para manejarlo?"></textarea></div>
       <button class="btn btn-primary" onclick="addLog()">➕ Agregar al registro</button>
-    </div>
+    </div>`}
   </div>`;
 },
 
 // ── PLAN DE CONTROL ──
 plan: ()=>{
-  const plan = state.plan||['','','','','',''];
+  const activeState = getActiveState();
+  const plan = activeState.plan||['','','','','',''];
   while(plan.length<6) plan.push('');
   return `<div class="card">
     <div class="card-title"><span class="icon">🛠</span>Mi plan de control de la ira</div>
     <p>Este es tu plan personalizado de estrategias. Puedes usarlo en el momento que sientas que la ira escala.</p>
 
-    <div class="info-box calm">📌 Ejemplo de plan: 1) Pedir una suspensión · 2) Respiración profunda · 3) Llamar a un amigo de confianza · 4) Hacer ejercicio · 5) Usar el modelo A-B-C-D</div>
+    <div class="info-box calm">📌 Ejemplo: 1) Pedir una suspensión · 2) Respiración profunda · 3) Llamar a un amigo de confianza · 4) Hacer ejercicio · 5) Usar el modelo A-B-C-D</div>
 
     <h3>Mis estrategias</h3>
-    ${plan.map((s,i)=>`<div class="plan-strategy">
-      <div class="num">${i+1}</div>
-      <input type="text" value="${s}" placeholder="Estrategia ${i+1}..."
-        oninput="updatePlan(${i},this.value)">
-    </div>`).join('')}
-    <button class="btn btn-outline btn-sm" onclick="addPlanRow()" style="margin-top:8px">➕ Agregar estrategia</button>
+    ${plan.map((s,i)=>reportState
+      ? (s ? `<div class="plan-strategy"><div class="num">${i+1}</div><span>${s}</span></div>` : '')
+      : `<div class="plan-strategy">
+          <div class="num">${i+1}</div>
+          <input type="text" value="${s}" placeholder="Estrategia ${i+1}..."
+            oninput="updatePlan(${i},this.value)">
+        </div>`).join('')}
+    ${reportState ? '' : `<button class="btn btn-outline btn-sm" onclick="addPlanRow()" style="margin-top:8px">➕ Agregar estrategia</button>`}
 
     <hr class="divider">
     <h3>📋 Plan de apoyo social</h3>
@@ -974,28 +1296,200 @@ plan: ()=>{
     ${qField('plan_apoyo2','Persona 2: ¿A quién pedirías apoyo y cómo te ayudaría?',2)}
     ${qField('plan_apoyo3','Persona 3: ¿A quién pedirías apoyo y cómo te ayudaría?',2)}
 
-    <button class="btn btn-success btn-sm" onclick="toast('✅ Plan guardado automáticamente')">💾 Plan guardado</button>
+    ${reportState ? '' : `<button class="btn btn-success btn-sm" onclick="toast('✅ Plan guardado automáticamente')">💾 Plan guardado</button>`}
   </div>`;
+},
+
+// ── REPORTE ──
+report: ()=>{
+  const activeState = getActiveState();
+  const userEmail = reportUserEmail || currentUser?.email || '';
+  const completedCount = (activeState.completed||[]).length;
+  const today = new Date().toLocaleDateString('es', { year:'numeric', month:'long', day:'numeric' });
+
+  const sessionList = Object.entries(SESSION_NAMES).map(([id, name]) => {
+    const done = (activeState.completed||[]).includes(id);
+    const answers = Object.entries(activeState.answers||{})
+      .filter(([k]) => k.startsWith(id + '_') || k.startsWith(id.replace(/\d+$/, '') + id.match(/\d+$/)?.[0] + '_'))
+      .filter(([, v]) => v && v.trim());
+    return { id, name, done, answers };
+  });
+
+  const logEntries = activeState.angerLog || [];
+  const planItems = (activeState.plan || []).filter(s => s && s.trim());
+
+  return `<div class="card">
+    <div class="card-title"><span class="icon">📄</span>Reporte de progreso</div>
+
+    ${reportState ? `<div class="info-box purple">👀 Viendo reporte de: <strong>${userEmail}</strong></div>` : ''}
+
+    <div class="report-header">
+      <p><strong>Usuario:</strong> ${userEmail}</p>
+      <p><strong>Sesiones completadas:</strong> ${completedCount} de 12 (${Math.round(completedCount/12*100)}%)</p>
+      <p><strong>Generado:</strong> ${today}</p>
+      ${activeState.certName ? `<p><strong>Nombre:</strong> ${activeState.certName}</p>` : ''}
+    </div>
+
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px" class="no-print">
+      <button class="btn btn-primary btn-sm" onclick="window.print()">🖨️ Imprimir / Guardar PDF</button>
+      ${reportState ? `<button class="btn btn-outline btn-sm" onclick="exitAdminView()">← Volver a pacientes</button>` : ''}
+    </div>
+
+    <h3>✅ Estado de sesiones</h3>
+    <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px">
+      ${Object.entries(SESSION_NAMES).map(([id, name]) =>
+        `<span class="tag" style="${(activeState.completed||[]).includes(id) ? 'background:#eafaf1;border-color:#a9dfbf;color:#1e8449' : 'background:#fdf2f2;border-color:#f5c6c6;color:#c0392b'}">
+          ${(activeState.completed||[]).includes(id) ? '✅' : '⏳'} ${name.replace(' –',' –')}
+        </span>`).join('')}
+    </div>
+
+    ${sessionList.map(s => {
+      const sAnswers = Object.entries(activeState.answers||{})
+        .filter(([k, v]) => k.startsWith(s.id + '_') && v && v.trim());
+      if (!s.done && !sAnswers.length) return '';
+      return `<div class="report-section">
+        <h4>${s.name} ${s.done ? '✅' : '⏳'}</h4>
+        ${sAnswers.map(([k, v]) => `<div class="report-answer">
+          <div class="ra-label">${k.replace(s.id+'_','').replace(/_/g,' ')}</div>
+          <div class="ra-value">${v.replace(/\n/g,'<br>')}</div>
+        </div>`).join('')}
+      </div>`;
+    }).join('')}
+
+    ${logEntries.length ? `<div class="report-section">
+      <h4>📋 Registro de ira (${logEntries.length} entradas)</h4>
+      ${logEntries.map((e,i) => `<div class="report-answer">
+        <div class="ra-label">${e.date || 'Entrada '+(i+1)} — Nivel: ${e.rating}/10</div>
+        <div class="ra-value">
+          ${e.situation ? `<strong>Situación:</strong> ${e.situation}<br>` : ''}
+          ${e.cues ? `<strong>Indicios:</strong> ${e.cues}<br>` : ''}
+          ${e.behavior ? `<strong>Conducta:</strong> ${e.behavior}<br>` : ''}
+          ${e.consequences ? `<strong>Consecuencias:</strong> ${e.consequences}<br>` : ''}
+          ${e.strategies ? `<strong>Estrategias:</strong> ${e.strategies}` : ''}
+        </div>
+      </div>`).join('')}
+    </div>` : ''}
+
+    ${planItems.length ? `<div class="report-section">
+      <h4>🛠 Plan de control de ira</h4>
+      ${planItems.map((s,i) => `<div class="report-answer"><div class="ra-value">${i+1}. ${s}</div></div>`).join('')}
+    </div>` : ''}
+
+    ${completedCount === 12 ? `<div class="certificate" style="margin-top:20px">
+      <div class="cert-icon">🏅</div>
+      <h2>Certificado de Finalización</h2>
+      <p style="color:var(--text-light);font-size:0.85rem">Programa de Gestión de la Ira</p>
+      <div class="cert-name">Se certifica que <strong>${activeState.certName || userEmail}</strong></div>
+      <p style="font-size:0.85rem;color:var(--text-light)">completó exitosamente el programa de 12 sesiones de<br><strong>Gestión de la Ira</strong></p>
+      <div class="cert-date">📅 ${today}</div>
+    </div>` : ''}
+  </div>`;
+},
+
+// ── ADMIN ──
+admin: ()=>`
+  <div class="card">
+    <div class="card-title"><span class="icon">👥</span>Vista de Pacientes</div>
+    <div class="info-box purple">Solo visible para Celeste. Los datos son confidenciales.</div>
+    <div class="loading"><div class="spinner"></div><br>Cargando pacientes...</div>
+  </div>`
+
+}; // end sections
+
+// ═══════════════════════════════════════════════
+//  ADMIN LOGIC
+// ═══════════════════════════════════════════════
+async function loadAdminView() {
+  try {
+    const [{ data: userStates }, { data: sessions }] = await Promise.all([
+      sb.from('ira_user_state').select('*').order('updated_at', { ascending: false }),
+      sb.from('ira_completed_sessions').select('user_id, session_key')
+    ]);
+
+    if (!userStates || userStates.length === 0) {
+      document.getElementById('app').innerHTML = `<div class="card">
+        <div class="card-title"><span class="icon">👥</span>Vista de Pacientes</div>
+        <div class="info-box purple">Solo visible para Celeste.</div>
+        <p style="color:var(--text-light);text-align:center;padding:20px">Aún no hay usuarios registrados.</p>
+      </div>`;
+      return;
+    }
+
+    // Count sessions per user
+    const sessionCount = {};
+    (sessions||[]).forEach(s => { sessionCount[s.user_id] = (sessionCount[s.user_id]||0) + 1; });
+
+    const cards = userStates.map(u => {
+      const n = (u.state?.completed||[]).length;
+      const pct = Math.round(n/12*100);
+      const initials = u.user_email ? u.user_email[0].toUpperCase() : '?';
+      const updated = u.updated_at ? new Date(u.updated_at).toLocaleDateString('es') : '—';
+      return `<div class="admin-user-card">
+        <div class="admin-avatar">${initials}</div>
+        <div class="admin-user-info">
+          <div class="admin-user-email">${u.user_email}</div>
+          <div class="admin-user-meta">${n}/12 sesiones · Última actividad: ${updated}</div>
+          <div class="admin-progress-bar"><div class="admin-progress-fill" style="width:${pct}%"></div></div>
+        </div>
+        <button class="btn btn-purple btn-sm" onclick="viewUserReport(${JSON.stringify(JSON.stringify(u))})">📄 Ver reporte</button>
+      </div>`;
+    }).join('');
+
+    document.getElementById('app').innerHTML = `<div class="card">
+      <div class="card-title"><span class="icon">👥</span>Pacientes (${userStates.length})</div>
+      <div class="info-box purple">Solo visible para Celeste. Los datos son confidenciales.</div>
+      ${cards}
+    </div>`;
+  } catch(e) {
+    document.getElementById('app').innerHTML = `<div class="card">
+      <p style="color:var(--primary)">Error al cargar pacientes: ${e.message}</p>
+    </div>`;
+  }
 }
-};
+
+function viewUserReport(userJsonStr) {
+  const userData = JSON.parse(userJsonStr);
+  reportState = { ...defaultState(), ...(userData.state || {}) };
+  reportUserEmail = userData.user_email;
+  document.getElementById('app').innerHTML = sections.report();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function exitAdminView() {
+  reportState = null;
+  reportUserEmail = null;
+  showSection('admin');
+}
 
 // ═══════════════════════════════════════════════
 //  NAVIGATION
 // ═══════════════════════════════════════════════
 let currentSection = 'home';
 function showSection(id) {
+  // Clear report mode when navigating away
+  if (id !== 'report') {
+    reportState = null;
+    reportUserEmail = null;
+  }
+
   currentSection = id;
   document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
   const btn = document.getElementById('nav-'+id);
   if(btn) { btn.classList.add('active'); btn.scrollIntoView({block:'nearest',inline:'center',behavior:'smooth'}); }
-  renderSection(id);
+
+  if (id === 'admin') {
+    renderSection(id);
+    loadAdminView();
+  } else {
+    renderSection(id);
+  }
   window.scrollTo({top:0,behavior:'smooth'});
 }
+
 function renderSection(id) {
   const fn = sections[id];
   document.getElementById('app').innerHTML = fn ? fn() : '<div class="card"><p>Sección no encontrada.</p></div>';
-  // Post-render initializations
-  if(id==='s12') renderCert();
+  if(id==='s12' && !reportState) renderCert();
 }
 
 // ═══════════════════════════════════════════════
@@ -1011,21 +1505,21 @@ function addLog() {
     consequences: document.getElementById('lf_consequences').value,
     strategies: document.getElementById('lf_strategies').value
   };
-  if(!entry.situation && !entry.date) { toast('⚠️ Escribe al menos la situación'); return; }
-  state.angerLog.push(entry); save();
+  if(!entry.situation && !entry.date) { toast('⚠️ Escribe al menos la situación', true); return; }
+  state.angerLog.push(entry); debouncedSave();
   toast('✅ Episodio registrado');
   renderSection('log');
 }
 function deleteLog(i) {
-  if(confirm('¿Eliminar este registro?')) { state.angerLog.splice(i,1); save(); renderSection('log'); }
+  if(confirm('¿Eliminar este registro?')) { state.angerLog.splice(i,1); debouncedSave(); renderSection('log'); }
 }
 
 // ═══════════════════════════════════════════════
 //  PLAN CRUD
 // ═══════════════════════════════════════════════
-function updatePlan(i, val) { state.plan[i]=val; save(); }
+function updatePlan(i, val) { state.plan[i]=val; debouncedSave(); }
 function addPlanRow() {
-  state.plan.push(''); save(); renderSection('plan');
+  state.plan.push(''); debouncedSave(); renderSection('plan');
   setTimeout(()=>{
     const inputs = document.querySelectorAll('.plan-strategy input');
     if(inputs.length) inputs[inputs.length-1].focus();
@@ -1035,15 +1529,15 @@ function addPlanRow() {
 // ═══════════════════════════════════════════════
 //  BREATHING EXERCISE
 // ═══════════════════════════════════════════════
-let breathTimer=null, breathPhase=0, breathCount=0;
 const breathPhases=[
   {name:'Inhala',dur:4,scale:1.4,color:'#1a5276'},
   {name:'Mantén',dur:4,scale:1.4,color:'#196f3d'},
   {name:'Exhala',dur:6,scale:1.0,color:'#922b21'},
 ];
-let breathCycle=0, breathRound=0;
+let breathActive=false, breathInterval=null, breathSec=0, breathPhaseIdx=0, breathRounds=0;
 function initBreathing() {
   const sec = document.getElementById('breathing-section');
+  if (!sec) return;
   sec.innerHTML = `
     <div class="breathing-outer">
       <div class="breathing-phase" id="b-phase">Toca para comenzar</div>
@@ -1053,38 +1547,27 @@ function initBreathing() {
       <button class="btn btn-outline btn-sm" onclick="stopBreath()">⏹ Detener</button>
     </div>`;
 }
-let breathActive=false, breathInterval=null, breathSec=0, breathPhaseIdx=0, breathRounds=0;
-function toggleBreath() {
-  if(!breathActive) startBreath(); else stopBreath();
-}
-function startBreath() {
-  breathActive=true; breathPhaseIdx=0; breathRounds=0; runBreathPhase();
-}
+function toggleBreath() { if(!breathActive) startBreath(); else stopBreath(); }
+function startBreath() { breathActive=true; breathPhaseIdx=0; breathRounds=0; runBreathPhase(); }
 function runBreathPhase() {
   if(!breathActive) return;
   const ph = breathPhases[breathPhaseIdx];
   const circle = document.getElementById('b-circle');
-  const phaseEl = document.getElementById('b-phase');
-  const countEl = document.getElementById('b-count');
-  const msgEl = document.getElementById('b-msg');
-  if(!circle) return;
+  if(!circle) { breathActive=false; return; }
   circle.style.transform = `scale(${ph.scale})`;
   circle.style.background = `radial-gradient(circle at 40% 40%, #5dade2, ${ph.color})`;
   circle.textContent = ph.name;
-  phaseEl.textContent = ph.name;
+  document.getElementById('b-phase').textContent = ph.name;
   breathSec = ph.dur;
-  countEl.textContent = breathSec;
+  document.getElementById('b-count').textContent = breathSec;
   clearInterval(breathInterval);
   breathInterval = setInterval(()=>{
     breathSec--;
-    if(countEl) countEl.textContent = breathSec;
+    const cnt = document.getElementById('b-count'); if(cnt) cnt.textContent = breathSec;
     if(breathSec<=0) {
       clearInterval(breathInterval);
       breathPhaseIdx = (breathPhaseIdx+1) % breathPhases.length;
-      if(breathPhaseIdx===0) {
-        breathRounds++;
-        if(msgEl) msgEl.textContent = `Ciclo ${breathRounds} completado 🌿`;
-      }
+      if(breathPhaseIdx===0) { breathRounds++; const m=document.getElementById('b-msg'); if(m) m.textContent=`Ciclo ${breathRounds} completado 🌿`; }
       setTimeout(runBreathPhase, 200);
     }
   },1000);
@@ -1093,8 +1576,7 @@ function stopBreath() {
   breathActive=false; clearInterval(breathInterval);
   const circle = document.getElementById('b-circle');
   if(circle) { circle.style.transform='scale(1)'; circle.textContent='Terminado 🌿'; }
-  const phaseEl = document.getElementById('b-phase');
-  if(phaseEl) phaseEl.textContent = '¡Bien hecho!';
+  const p = document.getElementById('b-phase'); if(p) p.textContent='¡Bien hecho!';
   toast('🌿 Ejercicio de respiración completado');
 }
 
@@ -1109,19 +1591,13 @@ const pmrSteps = [
   {name:'Cuerpo completo',inst:'Observa tu cuerpo relajado y respira profundo'},
 ];
 let pmrIdx=0, pmrPhase='tense', pmrInterval=null, pmrSec=0;
-function startPMR() {
-  pmrIdx=0; pmrPhase='tense'; pmrSec=5;
-  renderPMR();
-}
+function startPMR() { pmrIdx=0; pmrPhase='tense'; pmrSec=5; renderPMR(); }
 function renderPMR() {
-  const el = document.getElementById('pmr-active');
-  if(!el) return;
+  const el = document.getElementById('pmr-active'); if(!el) return;
   if(pmrIdx>=pmrSteps.length) {
-    el.innerHTML=`<div class="info-box green" style="margin-top:12px">✅ <strong>¡Relajación completa!</strong> Observa cómo se sienten tus músculos totalmente relajados.</div>`;
-    return;
+    el.innerHTML=`<div class="info-box green" style="margin-top:12px">✅ <strong>¡Relajación completa!</strong> Observa cómo se sienten tus músculos totalmente relajados.</div>`; return;
   }
-  const step = pmrSteps[pmrIdx];
-  const isTense = pmrPhase==='tense';
+  const step = pmrSteps[pmrIdx]; const isTense = pmrPhase==='tense';
   el.innerHTML=`<div class="info-box calm" style="margin-top:12px;text-align:center">
     <div style="font-size:0.8rem;color:var(--text-light);margin-bottom:4px">Paso ${pmrIdx+1} de ${pmrSteps.length}: <strong>${step.name}</strong></div>
     <div style="font-size:1.1rem;font-weight:700;margin:8px 0">${isTense?'💪 '+step.inst:'😌 Suelta y relaja'}</div>
@@ -1131,15 +1607,13 @@ function renderPMR() {
   clearInterval(pmrInterval);
   pmrInterval = setInterval(()=>{
     pmrSec--;
-    const el2 = document.getElementById('pmr-active');
-    if(!el2) { clearInterval(pmrInterval); return; }
-    const cnt = el2.querySelector('div[style*="font-size:2rem"]');
-    if(cnt) cnt.textContent = pmrSec;
-    if(pmrSec<=0) {
+    const el2=document.getElementById('pmr-active'); if(!el2){clearInterval(pmrInterval);return;}
+    const cnt=el2.querySelector('div[style*="font-size:2rem"]'); if(cnt) cnt.textContent=pmrSec;
+    if(pmrSec<=0){
       clearInterval(pmrInterval);
-      if(pmrPhase==='tense') { pmrPhase='relax'; pmrSec=8; }
-      else { pmrPhase='tense'; pmrIdx++; pmrSec=5; }
-      setTimeout(renderPMR, 300);
+      if(pmrPhase==='tense'){pmrPhase='relax';pmrSec=8;}
+      else{pmrPhase='tense';pmrIdx++;pmrSec=5;}
+      setTimeout(renderPMR,300);
     }
   },1000);
 }
@@ -1148,8 +1622,7 @@ function renderPMR() {
 //  CERTIFICATE
 // ═══════════════════════════════════════════════
 function renderCert() {
-  const el = document.getElementById('cert-render');
-  if(!el) return;
+  const el = document.getElementById('cert-render'); if(!el) return;
   const name = state.certName || '___________________________';
   const today = new Date().toLocaleDateString('es',{year:'numeric',month:'long',day:'numeric'});
   el.innerHTML=`<div class="certificate">
@@ -1159,16 +1632,23 @@ function renderCert() {
     <div class="cert-name">Se certifica que <strong>${name}</strong></div>
     <p style="font-size:0.85rem;color:var(--text-light)">ha completado exitosamente el programa de 12 sesiones de<br><strong>Gestión de la Ira</strong></p>
     <div class="cert-date">📅 ${today}</div>
-    <button class="btn btn-outline btn-sm" style="margin-top:14px" onclick="window.print()">🖨️ Imprimir certificado</button>
+    <button class="btn btn-outline btn-sm no-print" style="margin-top:14px" onclick="window.print()">🖨️ Imprimir certificado</button>
   </div>`;
 }
 
 // ═══════════════════════════════════════════════
-//  INIT
+//  AUTH LISTENER — MAIN INIT
 // ═══════════════════════════════════════════════
-load();
-updateProgress();
-renderSection('home');
+sb.auth.onAuthStateChange(async (event, session) => {
+  if (session?.user) {
+    currentUser = session.user;
+    await loadStateFromDB();
+    showApp();
+  } else {
+    currentUser = null;
+    showAuthScreen();
+  }
+});
 </script>
 </body>
 </html>
